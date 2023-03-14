@@ -1,0 +1,53 @@
+.show {
+	display: block;
+}
+
+.hide {
+	display: none; 
+}
+
+.back-header {
+	background-color: #747272;
+}
+
+.text-logo {
+	color: white;
+	font-size: 30px;
+	padding-left: 30px;
+}
+
+.navbar-head {
+	align-items: center;
+	display: flex;
+	padding-bottom: 20px;
+	padding-top: 20px;
+}
+
+.col-back{
+	background-color: #e7e7e7;
+}
+
+.seleziona {
+	padding-left: 2rem;
+}
+
+.width-select {
+	max-width: 80%;
+}
+
+.card-custom {
+	width: 80%;
+	margin-left: 2rem;
+}
+
+.position-canvas {
+	margin-top: -22%;
+}
+
+.position-canvas-zero {
+	margin-top: 0%;
+}
+
+.table-custom {
+	width: 80%;
+}

@@ -1,0 +1,1812 @@
+var config, configB;
+var myChartS, myChartB;
+var ctx, ctxB;
+var chart, chartB;
+var desc_num_list = [];
+var desc_den_list = []; 
+
+$(document).ready(function() {
+	
+	var sorgente_dati = JSON.parse(getSorgenteDati());
+	popolaComboIndicatori(sorgente_dati);
+	popolaComboAnni(sorgente_dati);
+	aggiornaValoriSingoli(sorgente_dati);
+
+	popolaListaDenominatore();
+	popolaListaNumeratore();
+
+	$('#desc_numeratore').text(desc_num_list[0]);
+	$('#desc_denominatore').text(desc_den_list[0]);
+
+	config = costruisciGraficoSerie(sorgente_dati);
+	myChartS = document.getElementById('grafico-serie');
+	ctx = myChartS.getContext('2d');
+	chart = new Chart(ctx, config);
+	
+	chart.options.scales.yAxes[0].ticks.min = 50;
+	
+	configB = costruisciGraficoBar(sorgente_dati);
+	myChartB = document.getElementById('grafico-bar');
+	ctxB = myChartB.getContext('2d');
+	chartB = new Chart(ctxB, configB);
+	
+	chart.canvas.parentNode.style.width = '700px';
+	chart.canvas.parentNode.style.height = '400px';
+	
+	chartB.canvas.parentNode.style.width = '700px';
+	chartB.canvas.parentNode.style.height = '400px';
+	
+	$( "#ind-select" ).change(function() {
+		
+		popolaComboAnni(sorgente_dati);	
+		aggiornaValoriSingoli(sorgente_dati);
+		
+		var elem_sel_ind = $('#ind-select').val();
+
+		$('#desc_numeratore').text(desc_num_list[elem_sel_ind]);
+		$('#desc_denominatore').text(desc_den_list[elem_sel_ind]);
+	
+		var anni = [];
+		var dataset = [];
+		
+		for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
+			anni.push(sorgente_dati[elem_sel_ind]['anni'][i]['value']);
+			dataset.push(sorgente_dati[elem_sel_ind]['anni'][i]['indicatore']);
+		}
+		
+		chart.data.labels = anni;
+		
+		if (elem_sel_ind == 2 || elem_sel_ind == 6) {
+			chart.options.scales.yAxes[0].ticks.min = 0;
+			chart.options.scales.yAxes[0].ticks.max = 50;
+		} else {
+			chart.options.scales.yAxes[0].ticks.min = 50;
+			chart.options.scales.yAxes[0].ticks.max = 100;
+		}	
+		
+		chart.data.datasets[0].data = dataset;
+		chart.update();
+		
+		var elem_sel_anni = $('#anni-select').val();
+	
+		var datasetNum = [];
+		var datasetDen = [];
+	
+		if (elem_sel_anni == "-1") {
+			for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
+			datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][i]['numeratore']);
+			datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][i]['denominatore']);
+			}
+		} else {
+			datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['numeratore']);
+			datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['denominatore']);
+		}
+			
+		chartB.data.labels = anni;
+		chartB.data.datasets[0].data = datasetNum;
+		chartB.data.datasets[1].data = datasetDen;
+		chartB.update();
+	});
+	
+	$( "#anni-select" ).change(function() {
+		aggiornaValoriSingoli(sorgente_dati);
+		
+		var elem_sel_ind = $('#ind-select').val();
+	
+		var anni = [];
+		var dataset = [];
+		
+		for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
+			anni.push(sorgente_dati[elem_sel_ind]['anni'][i]['value']);
+			dataset.push(sorgente_dati[elem_sel_ind]['anni'][i]['indicatore']);
+		}
+		
+		chart.data.labels = anni;
+		chart.data.datasets[0].data = dataset;
+		chart.update();
+		
+		var elem_sel_anni = $('#anni-select').val();
+	
+		var datasetNum = [];
+		var datasetDen = [];
+		var anniB = [];
+	
+		if (elem_sel_anni == "-1") {
+			for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
+			anniB.push(sorgente_dati[elem_sel_ind]['anni'][i]['value']);
+			datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][i]['numeratore']);
+			datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][i]['denominatore']);
+			}
+		} else {
+			anniB.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['value']);
+			datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['numeratore']);
+			datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['denominatore']);
+		}
+			
+		chartB.data.labels = anniB;
+		chartB.data.datasets[0].data = datasetNum;
+		chartB.data.datasets[1].data = datasetDen;
+		chartB.update();
+		
+	});
+	
+})
+
+function popolaListaDenominatore() {
+	desc_den_list.push("CFU da conseguire");
+	desc_den_list.push("Immatricolati puri dal CdS nel x/x+1 (informazioneic00b)");
+	desc_den_list.push("CFU conseguiti all\'estero dagli iscritti regolari a.a. x/x+1 nell\'a.s.x+1");
+	desc_den_list.push("Totale rispondenti");
+	desc_den_list.push("Totale laureati nell\'anno x");
+	desc_den_list.push("Laureati magistrali x intervistati");
+	desc_den_list.push("Totale ore di docenza");
+	desc_den_list.push("Totale docenti di rif. nel CdS");
+
+}
+	
+function popolaListaNumeratore() {
+	desc_num_list.push("CFU conseguiti");
+	desc_num_list.push("Immatricolati puri in x/x+1 che entro x+1 hanno acquisito 2/3 di CFU");
+	desc_num_list.push("CFU conseguiti dagli iscritti regolari a.a.x/x+1 nell\'a.s.x+1");
+	desc_num_list.push("Nnumero soddisfatti (ALMALAUREA o indagine ateneo)");
+	desc_num_list.push("Numero laureati regolari nell\'anno x");
+	desc_num_list.push("Laureati magistrali x occupati ad 1 o tre anni");
+	desc_num_list.push("Ore docenza tempo indeterminato");
+	desc_num_list.push("Docenti di ruolo e di rif. nel CdS con SSD caratterizzante CdS");
+
+}
+
+function costruisciGraficoSerie(sorgente_dati) {
+	var elem_sel_ind = $('#ind-select').val();
+	
+	var anni = [];
+	var dataset = [];
+	
+	for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
+		anni.push(sorgente_dati[elem_sel_ind]['anni'][i]['value']);
+		dataset.push(sorgente_dati[elem_sel_ind]['anni'][i]['indicatore']);
+	}
+	
+	return {
+		type : 'line',
+		data : {
+			labels : anni,
+			datasets : [ {
+				label : 'Indicatore',
+				data : dataset,
+				type : 'line',
+				fill : false,
+				backgroundColor : 'rgb(237, 125, 49)',
+				borderColor : 'rgb(117, 192, 59)',
+				pointBackgroundColor: 'rgb(117, 192, 59)',
+				pointStyle: 'circle'
+			}]
+		},
+
+		options : {
+			responsive: true,
+			legend: {
+				display: false,
+				reverse: true,
+				position: 'right'
+			},
+			title: {
+				display: true,
+				fontSize: 18,
+				fontColor: '#000',
+				fontFamily: 'Arial', 
+				position: 'top',
+				text: 'Trend indicatore ANVUR'
+			},
+			scales: {
+				xAxes: [{
+					scaleLabel: {
+						display: true,
+						labelString: "Anno accademico"
+					}
+				}],
+				yAxes: [{
+					scaleLabel: {
+						display: true,
+						labelString: "Indicatore ANVUR"
+					},
+					ticks: {
+						callback: function(value, index, values) {
+							if ($('#ind-select').val() == 2) {
+								return value + "\u2030";	
+							} else {
+								return value + "%";
+							}
+						}
+					}
+				}]
+			},
+			elements : {
+				line : {
+					tension : 0
+				}
+			}
+		}
+	}
+}
+
+function costruisciGraficoBar(sorgente_dati) {
+	var elem_sel_ind = $('#ind-select').val();
+	var elem_sel_anni = $('#anni-select').val();
+	
+	var anni = [];
+	var datasetNum = [];
+	var datasetDen = [];
+	
+	if (elem_sel_anni == "-1") {
+		for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
+		anni.push(sorgente_dati[elem_sel_ind]['anni'][i]['value']);
+		datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][i]['numeratore']);
+		datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][i]['denominatore']);
+		}
+	} else {
+		anni.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['value']);
+		datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['numeratore']);
+		datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['denominatore']);
+	}
+	
+	
+	
+	return {
+		type : 'bar',
+		data : {
+			labels : anni,
+			datasets : [ {
+				label : 'Numeratore',
+				data : datasetNum,
+				type : 'bar',
+				backgroundColor : 'rgb(81, 136, 52)',
+				borderColor : 'rgb(65, 65, 65)',
+				pointBackgroundColor: 'rgb(237, 125, 49)'
+			},
+			{
+				label : 'Denominatore',
+				data : datasetDen,
+				type : 'bar',
+				backgroundColor : 'rgb(0, 131, 208)',
+				borderColor : 'rgb(65, 65, 65)',
+				pointBackgroundColor: 'rgb(237, 125, 49)'
+			}
+			]
+		},
+
+		options : {
+			responsive: true,
+			legend: {
+				display: true,
+				reverse: true,
+				position: 'right'
+			},
+			title: {
+				display: true,
+				fontSize: 18,
+				fontColor: '#000',
+				fontFamily: 'Arial', 
+				position: 'top',
+				text: 'Numeratore & Denominatore'
+			},
+			scales: {
+				xAxes: [{
+					scaleLabel: {
+						display: true,
+						labelString: "Anno accademico"
+					}
+				}],
+				yAxes: [{
+					scaleLabel: {
+						display: true,
+						labelString: "Valore assoluto"
+					}
+				}]
+			}
+		}
+	}
+}
+
+
+function popolaComboIndicatori(sorgente_dati) {
+	var x = document.getElementById("ind-select");
+	var option;
+	
+	for (var i = 0; i < sorgente_dati.length; i++) {
+		option = document.createElement("option");
+		option.text = sorgente_dati[i]['value'];
+		option.value = sorgente_dati[i]['id'];
+		x.add(option);
+	}
+		
+}
+
+function popolaComboAnni(sorgente_dati) {
+	var elem_selected = $('#ind-select').val();
+	var x = document.getElementById("anni-select");
+	
+	for (var k = x.options.length-1; k >= 0; k--) {
+		x.remove(k);
+	}
+		
+	var option = document.createElement("option");
+	option.text = "Tutti gli anni accademici";
+	option.value = "-1";
+	x.add(option);
+	
+	for (var i = 0; i < sorgente_dati[elem_selected]['anni'].length; i++) {
+		option = document.createElement("option");
+		option.text = sorgente_dati[elem_selected]['anni'][i]['value'];
+		option.value = sorgente_dati[elem_selected]['anni'][i]['id'];
+		x.add(option);
+	}
+}
+
+function aggiornaValoriSingoli(sorgente_dati) {
+	var elem_sel_ind = $('#ind-select').val();
+	var elem_sel_anni = $('#anni-select').val();
+	
+	if (elem_sel_anni != '-1') {
+		$('#container-ind').addClass('show').removeClass('hide');
+		$('#container-trend').addClass('show').removeClass('hide');
+		
+		$('#table-custom-id').addClass('hide').removeClass('show');
+		
+		if (elem_sel_ind == 2) {
+			$('#val-ind').text(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['indicatore'] + "\u2030");
+		} else {
+			$('#val-ind').text(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['indicatore'] + "%");
+		}
+		
+		if (elem_sel_anni == 0) {
+			$('#val-trend').text("-");
+		} else if (elem_sel_ind == 2) {
+			$('#val-trend').text(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['trend'] + "\u2030");
+		} else {
+			$('#val-trend').text(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['trend'] + "%");
+		}
+		
+		if (elem_sel_anni != 0 && sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['trend'] < 0) {
+			$('#freccia-rossa').addClass('show').removeClass('hide');
+			$('#freccia-verde').addClass('hide').removeClass('show');
+		} else if (elem_sel_anni != 0){
+			$('#freccia-rossa').addClass('hide').removeClass('show');
+			$('#freccia-verde').addClass('show').removeClass('hide');
+		} else {
+			$('#freccia-rossa').addClass('hide').removeClass('show');
+			$('#freccia-verde').addClass('hide').removeClass('show');
+		}
+		
+	} else {
+		$('#container-ind').addClass('hide').removeClass('show');
+		$('#container-trend').addClass('hide').removeClass('show');
+		$('#table-custom-id').addClass('show').removeClass('hide');
+		
+		var anno, indicatore, trend;
+		
+		$('#content-body').empty();
+		
+		for (var k=0; k<sorgente_dati[elem_sel_ind]['anni'].length; k++) {
+			anno = sorgente_dati[elem_sel_ind]['anni'][k]['value'];
+			indicatore = sorgente_dati[elem_sel_ind]['anni'][k]['indicatore'];
+			
+			if (k == 0) {
+				trend = '-';
+			} else {
+				trend = sorgente_dati[elem_sel_ind]['anni'][k]['trend'];	
+			}
+			
+			$('#content-body').append('<tr>');
+			$('#content-body').append('<td>'+anno+'</td>');
+			
+			if (elem_sel_ind == 2) {
+				$('#content-body').append('<td>'+indicatore+'\u2030 </td>');
+			} else {
+				$('#content-body').append('<td>'+indicatore+'% </td>');
+			}
+			
+			if (k == 0) {
+				$('#content-body').append('<td>'+trend+'</td>');
+			} else if (elem_sel_ind == 2) {
+				$('#content-body').append('<td>'+trend+'\u2030</td>');	
+			} else {
+				$('#content-body').append('<td>'+trend+'%</td>');	
+			}
+			
+			if (k != 0 && trend < 0) {
+				$('#content-body').append('<td><img style="width:20px; height:20px;" src="resources/freccia rossa.png"></img></td>');	
+			} else if (k != 0) {
+				$('#content-body').append('<td><img style="width:20px; height:20px;" src="resources/freccia verde.png"></img></td>');	
+			}
+						
+			$('#content-body').append('</tr>');
+		}
+		
+	}
+}
+
+
+function getSorgenteDati() {
+	return `
+	[
+		{
+			"id" : "0",
+			"value": "Campus Bio-Medico",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.735",
+					"valore-2022": "0.511"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.894",
+					"valore-2022": "0.889"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.255",
+					"valore-2022": "0.469"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.947",
+					"valore-2022": "0.924"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "14.085",
+					"valore-2022": "13.819"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.003",
+					"valore-2022": "0.001"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "0.04"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.18",
+					"valore-2022": "0.174"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.261",
+					"valore-2022": "0.275"
+				}
+			]
+		},
+		{
+			"id" : "1",
+			"value": "HUMANITAS University",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.741",
+					"valore-2022": "0.624"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.977",
+					"valore-2022": "0.977"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.239",
+					"valore-2022": "0.173"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "ND",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "16.148",
+					"valore-2022": "13.009"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.567",
+					"valore-2022": "0.424"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.375",
+					"valore-2022": "0.436"
+				}
+			]
+		},
+		{
+			"id" : "2",
+			"value": "IULM - MILANO",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.705",
+					"valore-2022": "0.647"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.859",
+					"valore-2022": "0.831"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.135",
+					"valore-2022": "0.17"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.94",
+					"valore-2022": "0.911"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "73.685",
+					"valore-2022": "73"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.016",
+					"valore-2022": "0.007"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0.143",
+					"valore-2022": "0.125"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.222",
+					"valore-2022": "0.357"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.112",
+					"valore-2022": "0.149"
+				}
+			]
+		},
+		{
+			"id" : "3",
+			"value": "LINK CAMPUS",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.481",
+					"valore-2022": "0.539"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "1",
+					"valore-2022": "0.875"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0",
+					"valore-2022": "0.125"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "ND",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "22.25",
+					"valore-2022": "9"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.002",
+					"valore-2022": "0"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.2",
+					"valore-2022": "0.667"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.167",
+					"valore-2022": "0.042"
+				}
+			]
+		},
+		{
+			"id" : "4",
+			"value": "LIUC",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.656",
+					"valore-2022": "0.645"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.889",
+					"valore-2022": "0.894"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.128",
+					"valore-2022": "0.204"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.97",
+					"valore-2022": "0.954"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "54.851",
+					"valore-2022": "52.429"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.079",
+					"valore-2022": "0.037"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0",
+					"valore-2022": "0.667"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.571",
+					"valore-2022": "0.3"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.213",
+					"valore-2022": "0.204"
+				}
+			]
+		},
+		{
+			"id" : "5",
+			"value": "Luiss Guido Carli",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.867",
+					"valore-2022": "0.792"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.944",
+					"valore-2022": "0.917"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.286",
+					"valore-2022": "0.267"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.949",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "81.411",
+					"valore-2022": "81.612"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.046",
+					"valore-2022": "0.038"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0.571",
+					"valore-2022": "0.143"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.571",
+					"valore-2022": "0.514"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.161",
+					"valore-2022": "0.121"
+				}
+			]
+		},
+		{
+			"id" : "6",
+			"value": "LUM 'G Degennaro'",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.431",
+					"valore-2022": "0.495"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.972",
+					"valore-2022": "0.958"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.262",
+					"valore-2022": "0.218"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.972",
+					"valore-2022": "0.954"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "30.738",
+					"valore-2022": "24.436"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.02",
+					"valore-2022": "0.017"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0",
+					"valore-2022": "1"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.167",
+					"valore-2022": "0.522"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.214",
+					"valore-2022": "0.236"
+				}
+			]
+		},
+		{
+			"id" : "7",
+			"value": "LUMSA - ROMA",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.702",
+					"valore-2022": "0.69"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.895",
+					"valore-2022": "0.941"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.293",
+					"valore-2022": "0.284"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.968",
+					"valore-2022": "0.959"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "56.222",
+					"valore-2022": "67.51"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.012",
+					"valore-2022": "0.005"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0.375",
+					"valore-2022": "0.364"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.379",
+					"valore-2022": "0.324"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.061",
+					"valore-2022": "0.039"
+				}
+			]
+		},
+		{
+			"id" : "8",
+			"value": "S Raffaele - MI",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.882",
+					"valore-2022": "0.787"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.944",
+					"valore-2022": "0.953"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.233",
+					"valore-2022": "0.21"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.949",
+					"valore-2022": "0.942"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "18.006",
+					"valore-2022": "19.095"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.013",
+					"valore-2022": "0.009"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0.136",
+					"valore-2022": "0.184"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.581",
+					"valore-2022": "0.585"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.233",
+					"valore-2022": "0.24"
+				}
+			]
+		},
+		{
+			"id" : "9",
+			"value": "San Raffaele Roma",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.353",
+					"valore-2022": "0.381"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.875",
+					"valore-2022": "0.873"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.933",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "139.449",
+					"valore-2022": "116.446"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.6",
+					"valore-2022": "0.56"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.408",
+					"valore-2022": "0.375"
+				}
+			]
+		},
+		{
+			"id" : "10",
+			"value": "SC GASTRONOMICHE",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.671",
+					"valore-2022": "0.455"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "1",
+					"valore-2022": "1"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.929",
+					"valore-2022": "0.878"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "22.471",
+					"valore-2022": "20.176"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.294",
+					"valore-2022": "0.235"
+				}
+			]
+		},
+		{
+			"id" : "11",
+			"value": "Suor Orsola - NAPOLI",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.707",
+					"valore-2022": "0.69"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.871",
+					"valore-2022": "0.753"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.076",
+					"valore-2022": "0.119"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.972",
+					"valore-2022": "0.964"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "77.457",
+					"valore-2022": "89.405"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.006",
+					"valore-2022": "0.002"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0.2",
+					"valore-2022": "0.182"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.074",
+					"valore-2022": "0.033"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.12",
+					"valore-2022": "0.06"
+				}
+			]
+		},
+		{
+			"id" : "12",
+			"value": "Telemat GFORTUNATO",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.543",
+					"valore-2022": "0.4"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.969",
+					"valore-2022": "0.885"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.972",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "62.042",
+					"valore-2022": "60"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.833",
+					"valore-2022": "0.727"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.083",
+					"valore-2022": "0"
+				}
+			]
+		},
+		{
+			"id" : "13",
+			"value": "Telematica GMarconi",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.401",
+					"valore-2022": "0.343"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.908",
+					"valore-2022": "0.885"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.143",
+					"valore-2022": "0.138"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.974",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "77.549",
+					"valore-2022": "114.615"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.118",
+					"valore-2022": "0.125"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.341",
+					"valore-2022": "0.108"
+				}
+			]
+		},
+		{
+			"id" : "14",
+			"value": "Telematica IUL",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.341",
+					"valore-2022": "0.421"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.625",
+					"valore-2022": "1"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "ND",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "309.5",
+					"valore-2022": "311"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.5",
+					"valore-2022": "0.5"
+				}
+			]
+		},
+		{
+			"id" : "15",
+			"value": "Telematica UNITELMA",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.083",
+					"valore-2022": "0.058"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.941",
+					"valore-2022": "0.971"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.979",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "56.111",
+					"valore-2022": "41.529"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0",
+					"valore-2022": "0.001"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.389",
+					"valore-2022": "0.324"
+				}
+			]
+		},
+		{
+			"id" : "16",
+			"value": "Telematica 'E-CAMPUS' ",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.346",
+					"valore-2022": "0.289"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.959",
+					"valore-2022": "0.959"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.118",
+					"valore-2022": "0.167"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.954",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "357.487",
+					"valore-2022": "376.583"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.419",
+					"valore-2022": "0.359"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.132",
+					"valore-2022": "0.097"
+				}
+			]
+		},
+		{
+			"id" : "17",
+			"value": "UKE - Kore ENNA",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.542",
+					"valore-2022": "0.499"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.932",
+					"valore-2022": "0.947"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.18",
+					"valore-2022": "0.209"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.982",
+					"valore-2022": "0.955"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "29.241",
+					"valore-2022": "28.03"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.003",
+					"valore-2022": "0.001"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0.391",
+					"valore-2022": "0.381"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.1",
+					"valore-2022": "0.161"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.158",
+					"valore-2022": "0.149"
+				}
+			]
+		},
+		{
+			"id" : "18",
+			"value": "UNICUSANO - Roma",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0",
+					"valore-2022": "0.003"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.907",
+					"valore-2022": "0.859"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.069",
+					"valore-2022": "0"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.978",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "52.713",
+					"valore-2022": "110.778"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "NR",
+					"valore-2022": "0"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.4",
+					"valore-2022": "0.281"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.379",
+					"valore-2022": "0.333"
+				}
+			]
+		},
+		{
+			"id" : "19",
+			"value": "UNINETTUNO",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.157",
+					"valore-2022": "0.056"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.893",
+					"valore-2022": "0.857"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.167",
+					"valore-2022": "0.167"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.969",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "235.867",
+					"valore-2022": "103.533"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.364",
+					"valore-2022": "0.462"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.1",
+					"valore-2022": "0.1"
+				}
+			]
+		},
+		{
+			"id" : "20",
+			"value": "UNINT - ROMA",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.562",
+					"valore-2022": "0.573"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.871",
+					"valore-2022": "0.833"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.097",
+					"valore-2022": "0.194"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.892",
+					"valore-2022": "0.886"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "57.258",
+					"valore-2022": "44.056"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.05",
+					"valore-2022": "0.011"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.182",
+					"valore-2022": "0.222"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.065",
+					"valore-2022": "0.194"
+				}
+			]
+		},
+		{
+			"id" : "21",
+			"value": "Univ Bocconi MILANO",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.746",
+					"valore-2022": "0.779"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.965",
+					"valore-2022": "0.955"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.145",
+					"valore-2022": "0.137"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.916",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "40.716",
+					"valore-2022": "39.707"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.1",
+					"valore-2022": "0.033"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0.455",
+					"valore-2022": "0.37"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.333",
+					"valore-2022": "0.212"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.246",
+					"valore-2022": "0.284"
+				}
+			]
+		},
+		{
+			"id" : "22",
+			"value": "Univ BOLZANO",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.76",
+					"valore-2022": "0.723"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.92",
+					"valore-2022": "0.929"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.186",
+					"valore-2022": "0.282"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.887",
+					"valore-2022": "0.863"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "11.427",
+					"valore-2022": "11.404"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.039",
+					"valore-2022": "0.02"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0.579",
+					"valore-2022": "0.449"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.434",
+					"valore-2022": "0.328"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.473",
+					"valore-2022": "0.45"
+				}
+			]
+		},
+		{
+			"id" : "23",
+			"value": "Univ Catt SCuore",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.664",
+					"valore-2022": "0.65"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.94",
+					"valore-2022": "0.934"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.114",
+					"valore-2022": "0.161"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.894",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "29.303",
+					"valore-2022": "29.361"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.012",
+					"valore-2022": "0.005"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0.191",
+					"valore-2022": "0.162"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.129",
+					"valore-2022": "0.109"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.181",
+					"valore-2022": "0.207"
+				}
+			]
+		},
+		{
+			"id" : "24",
+			"value": "Univ EUROPEA - ROMA",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.672",
+					"valore-2022": "0.643"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.84",
+					"valore-2022": "0.865"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.102",
+					"valore-2022": "0.113"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.949",
+					"valore-2022": "0.962"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "32.469",
+					"valore-2022": "35.962"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.011",
+					"valore-2022": "0.006"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.077",
+					"valore-2022": "0.067"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.163",
+					"valore-2022": "0.151"
+				}
+			]
+		},
+		{
+			"id" : "25",
+			"value": "UnivStranREGGIO C",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.31",
+					"valore-2022": "0.533"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.8",
+					"valore-2022": "0.737"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0.25",
+					"valore-2022": "0.111"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.956",
+					"valore-2022": "ND"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "20",
+					"valore-2022": "17.167"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "0.8"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.4",
+					"valore-2022": "0.389"
+				}
+			]
+		},
+		{
+			"id" : "26",
+			"value": "VALLE D'AOSTA",
+			"indicatori": [
+				{
+					"id": "0",
+					"valore-iniziale": "0.573",
+					"valore-2022": "0.653"
+				},
+				{
+					"id": "1",
+					"valore-iniziale": "0.955",
+					"valore-2022": "0.905"
+				},
+				{
+					"id": "2",
+					"valore-iniziale": "0",
+					"valore-2022": "0"
+				},
+				{
+					"id": "3",
+					"valore-iniziale": "0.967",
+					"valore-2022": "0.95"
+				},
+				{
+					"id": "4",
+					"valore-iniziale": "17.776",
+					"valore-2022": "16.917"
+				},
+				{
+					"id": "5",
+					"valore-iniziale": "0.114",
+					"valore-2022": "0.103"
+				},
+				{
+					"id": "6",
+					"valore-iniziale": "NR",
+					"valore-2022": "NR"
+				},
+				{
+					"id": "7",
+					"valore-iniziale": "0.333",
+					"valore-2022": "0.308"
+				},
+				{
+					"id": "8",
+					"valore-iniziale": "0.041",
+					"valore-2022": "0.042"
+				}
+			]
+		}		
+	]
+`;
+}
