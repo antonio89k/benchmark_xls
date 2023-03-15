@@ -4,21 +4,21 @@ var ctx, ctxB;
 var chart, chartB;
 var desc_num_list = [];
 var desc_den_list = []; 
+var list_uni_fis = ["0","1","2","3","4","5","6","7","8","9","10","11","17","21","22","23","24","25","26"];
+var list_uni_tel = ["12","13","14","15","16","18","19","20"];
 
 $(document).ready(function() {
 	
 	var sorgente_dati = JSON.parse(getSorgenteDati());
-	popolaComboIndicatori(sorgente_dati);
-	popolaComboAnni(sorgente_dati);
-	aggiornaValoriSingoli(sorgente_dati);
+	var lista_indicatori = JSON.parse(getLabelIndicatori());
+	popolaComboIndicatori(lista_indicatori);
+	popolaListaUniversita(sorgente_dati);
 
-	popolaListaDenominatore();
-	popolaListaNumeratore();
 
-	$('#desc_numeratore').text(desc_num_list[0]);
-	$('#desc_denominatore').text(desc_den_list[0]);
 
-	config = costruisciGraficoSerie(sorgente_dati);
+	
+
+	/*config = costruisciGraficoSerie(sorgente_dati);
 	myChartS = document.getElementById('grafico-serie');
 	ctx = myChartS.getContext('2d');
 	chart = new Chart(ctx, config);
@@ -34,103 +34,93 @@ $(document).ready(function() {
 	chart.canvas.parentNode.style.height = '400px';
 	
 	chartB.canvas.parentNode.style.width = '700px';
-	chartB.canvas.parentNode.style.height = '400px';
+	chartB.canvas.parentNode.style.height = '400px';*/
+
+	let checkboxes = $("input[type=checkbox][name=check-uni]");
+	let enabledUni = [];
+
+	checkboxes.change(function() {
+		enabledUni = checkboxes
+		  .filter(":checked")
+		  .map(function() { 
+			return this.value;
+		  }) 
+		  .get()
+		  
+		  if (this.value == 99) {
+			selezionaDeselezionaTutteUni(this.checked);
+		  } else if (this.value == 999) {
+			selezionaDeselezionaTutteUniTelematiche(this.checked);
+		  } else if (this.value == 50) {
+			selezionaDeselezionaTutteUniFisiche(this.checked);
+		  } else {
+			selezionaDeselezionaSingolaUni(this.checked);
+		  }
+
+	  });
+	
+	
+	/*var checkbox = document.querySelector("input[name=checkbox]");
+
+	checkbox.addEventListener('change', function() {
+	if (this.checked) {
+		console.log("Checkbox is checked..");
+	} else {
+		console.log("Checkbox is not checked..");
+	}
+	});*/
+
+
+
 	
 	$( "#ind-select" ).change(function() {
-		
-		popolaComboAnni(sorgente_dati);	
-		aggiornaValoriSingoli(sorgente_dati);
-		
-		var elem_sel_ind = $('#ind-select').val();
+		/*chartB.data.labels = anni;
+		chartB.data.datasets[0].data = datasetNum;
+		chartB.data.datasets[1].data = datasetDen;
+		chartB.update();*/
+	});
+	
+});
 
-		$('#desc_numeratore').text(desc_num_list[elem_sel_ind]);
-		$('#desc_denominatore').text(desc_den_list[elem_sel_ind]);
-	
-		var anni = [];
-		var dataset = [];
-		
-		for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
-			anni.push(sorgente_dati[elem_sel_ind]['anni'][i]['value']);
-			dataset.push(sorgente_dati[elem_sel_ind]['anni'][i]['indicatore']);
+function selezionaDeselezionaTutteUni(checked) {
+	let checkboxes = $("input[type=checkbox][name=check-uni]");
+	for (var i=0; i<checkboxes.length; i++) {
+		checkboxes[i].checked = checked;
+	}
+}
+
+function selezionaDeselezionaTutteUniTelematiche(checked) {
+	let checkboxes = $("input[type=checkbox][name=check-uni]");
+	for (var i=0; i<checkboxes.length; i++) {
+		if (list_uni_tel.includes(checkboxes[i].value)) {
+			checkboxes[i].checked = checked;
 		}
-		
-		chart.data.labels = anni;
-		
-		if (elem_sel_ind == 2 || elem_sel_ind == 6) {
-			chart.options.scales.yAxes[0].ticks.min = 0;
-			chart.options.scales.yAxes[0].ticks.max = 50;
-		} else {
-			chart.options.scales.yAxes[0].ticks.min = 50;
-			chart.options.scales.yAxes[0].ticks.max = 100;
-		}	
-		
-		chart.data.datasets[0].data = dataset;
-		chart.update();
-		
-		var elem_sel_anni = $('#anni-select').val();
-	
-		var datasetNum = [];
-		var datasetDen = [];
-	
-		if (elem_sel_anni == "-1") {
-			for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
-			datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][i]['numeratore']);
-			datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][i]['denominatore']);
-			}
-		} else {
-			datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['numeratore']);
-			datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['denominatore']);
+		if (checkboxes[i].value == "99") {
+			checkboxes[i].checked = false;
 		}
-			
-		chartB.data.labels = anni;
-		chartB.data.datasets[0].data = datasetNum;
-		chartB.data.datasets[1].data = datasetDen;
-		chartB.update();
-	});
-	
-	$( "#anni-select" ).change(function() {
-		aggiornaValoriSingoli(sorgente_dati);
-		
-		var elem_sel_ind = $('#ind-select').val();
-	
-		var anni = [];
-		var dataset = [];
-		
-		for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
-			anni.push(sorgente_dati[elem_sel_ind]['anni'][i]['value']);
-			dataset.push(sorgente_dati[elem_sel_ind]['anni'][i]['indicatore']);
+	}
+}
+
+function selezionaDeselezionaTutteUniFisiche(checked) {
+	let checkboxes = $("input[type=checkbox][name=check-uni]");
+	for (var i=0; i<checkboxes.length; i++) {
+		if (list_uni_fis.includes(checkboxes[i].value)) {
+			checkboxes[i].checked = checked;
 		}
-		
-		chart.data.labels = anni;
-		chart.data.datasets[0].data = dataset;
-		chart.update();
-		
-		var elem_sel_anni = $('#anni-select').val();
-	
-		var datasetNum = [];
-		var datasetDen = [];
-		var anniB = [];
-	
-		if (elem_sel_anni == "-1") {
-			for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
-			anniB.push(sorgente_dati[elem_sel_ind]['anni'][i]['value']);
-			datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][i]['numeratore']);
-			datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][i]['denominatore']);
-			}
-		} else {
-			anniB.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['value']);
-			datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['numeratore']);
-			datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['denominatore']);
+		if (checkboxes[i].value == "99") {
+			checkboxes[i].checked = false;
 		}
-			
-		chartB.data.labels = anniB;
-		chartB.data.datasets[0].data = datasetNum;
-		chartB.data.datasets[1].data = datasetDen;
-		chartB.update();
-		
-	});
-	
-})
+	}
+}
+
+function selezionaDeselezionaSingolaUni(checked) {
+	let checkboxes = $("input[type=checkbox][name=check-uni]");
+	for (var i=0; i<checkboxes.length; i++) {
+		if (checkboxes[i].value == "99" || checkboxes[i].value == "999" || checkboxes[i].value == "50") {
+			checkboxes[i].checked = false;
+		}
+	}
+}
 
 function popolaListaDenominatore() {
 	desc_den_list.push("CFU da conseguire");
@@ -308,39 +298,42 @@ function costruisciGraficoBar(sorgente_dati) {
 	}
 }
 
+function popolaListaUniversita(sorgente_dati) {
+	var x = document.getElementById("ind-uni");
+	var checkbox;
+	var label;
+	var br;
 
-function popolaComboIndicatori(sorgente_dati) {
-	var x = document.getElementById("ind-select");
-	var option;
-	
 	for (var i = 0; i < sorgente_dati.length; i++) {
-		option = document.createElement("option");
-		option.text = sorgente_dati[i]['value'];
-		option.value = sorgente_dati[i]['id'];
-		x.add(option);
+		checkbox = document.createElement("input");
+		checkbox.setAttribute("type", "checkbox");
+		checkbox.setAttribute("value", sorgente_dati[i]['id']);
+		checkbox.setAttribute("id", "uni" + sorgente_dati[i]['id']);
+		checkbox.setAttribute("name", "check-uni");
+		x.appendChild(checkbox);
+
+		label = document.createElement("label");
+		label.htmlFor = "uni" + sorgente_dati[i]['id'];
+		label.innerHTML = sorgente_dati[i]['value'];
+		x.appendChild(label);
+
+		br = document.createElement("br");
+		x.appendChild(br);
 	}
 		
 }
 
-function popolaComboAnni(sorgente_dati) {
-	var elem_selected = $('#ind-select').val();
-	var x = document.getElementById("anni-select");
+function popolaComboIndicatori(lista_indicatori) {
+	var x = document.getElementById("ind-select");
+	var option;
 	
-	for (var k = x.options.length-1; k >= 0; k--) {
-		x.remove(k);
-	}
-		
-	var option = document.createElement("option");
-	option.text = "Tutti gli anni accademici";
-	option.value = "-1";
-	x.add(option);
-	
-	for (var i = 0; i < sorgente_dati[elem_selected]['anni'].length; i++) {
+	for (var i = 0; i < lista_indicatori.length; i++) {
 		option = document.createElement("option");
-		option.text = sorgente_dati[elem_selected]['anni'][i]['value'];
-		option.value = sorgente_dati[elem_selected]['anni'][i]['id'];
+		option.text = lista_indicatori[i]['value'];
+		option.value = lista_indicatori[i]['id'];
 		x.add(option);
 	}
+		
 }
 
 function aggiornaValoriSingoli(sorgente_dati) {
@@ -426,6 +419,48 @@ function aggiornaValoriSingoli(sorgente_dati) {
 	}
 }
 
+function getLabelIndicatori() {
+	return `
+	[
+		{
+			"id" : "0",
+			"value": "A_A - Proporzione di studenti che si iscrivono al II anno della stessa classe di laurea o laurea magistrale a ciclo unico (L, LMCU) avendo acquisito almeno 40 CFU in rapporto alla coorte di immatricolati nell'a.a. precedente"
+		},
+		{
+			"id" : "1",
+			"value": "A_B - Proporzione dei docenti di ruolo indicati come docenti di riferimento che appartengono a settori scientifico-disciplinari (SSD) di base e caratterizzanti nei corsi di studio (L, LM, LMCU) attivati"
+		},
+		{
+			"id" : "2",
+			"value": "B_A - Rapporto fra gli iscritti al primo anno dei corsi di dottorato con borsa di studio rispetto al totale dei docenti di ruolo"
+		},
+		{
+			"id" : "3",
+			"value": "C_A - Proporzione dei laureandi complessivamente soddisfatti del Corso di Studio"
+		},
+		{
+			"id" : "4",
+			"value": "C_B - Rapporto studenti regolari/docenti di ruolo e riduzione di tale rapporto"
+		},
+		{
+			"id" : "5",
+			"value": "D_A (D_C Scuole Superiori) - Proporzione di CFU conseguiti all'estero dagli studenti, ivi inclusi quelli acquisiti durante periodi di “mobilità virtuale”"
+		},
+		{
+			"id" : "6",
+			"value": "D_B - Proporzione di Dottori di ricerca che hanno trascorso almeno 3 mesi all'estero"
+		},
+		{
+			"id" : "7",
+			"value": "E_A - Proporzione dei Professori di I e II fascia assunti dall'esterno nel triennio precedente, sul totale dei professori reclutati"
+		},
+		{
+			"id" : "8",
+			"value": "E_B - Proporzione di ricercatori di cui all'art. 24, c. 3, lett. a) e lett. b) sul totale dei docenti di ruolo"
+		}
+	]
+	`;
+}
 
 function getSorgenteDati() {
 	return `

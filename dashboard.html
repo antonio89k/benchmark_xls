@@ -21,65 +21,36 @@
       </nav>
       <br/>
       <div class="row">
-         <div class="col-md-8">
+         <div class="col-md-12">
             <div class="seleziona">
                <label for="ind-select" style="padding-right: 5px;"><strong>Indicatore:</strong></label>
                <select class="form-select width-select" aria-label="Select indicatori" name="indicatori" id="ind-select"></select>
             </div>
          </div>
-         <div class="col-md-4">
-            <div class="seleziona">
-               <label for="anni-select" style="padding-right: 5px;"><strong>Anni:</strong></label>
-               <select name="anni" id="anni-select" class="form-select" aria-label="Select anni"></select>
-            </div>
-         </div>
       </div>
       <br/>
+
+
+
       <div class="row">
-         <div class="col-md-4">
-            <table class="table table-striped table-custom" id="table-custom-id" style="margin-left: 2rem;">
-               <thead>
-                  <tr>
-                     <th scope="col">Anno</th>
-                     <th scope="col">Indicatore</th>
-                     <th scope="col">Trend</th>
-                     <th scope="col"></th>
-                  </tr>
-               </thead>
-               <tbody id="content-body">
-               </tbody>
-            </table>
-            <div class="card seleziona card-custom" id="container-ind">
-               <div class="card-body">
-                  <div class="row">
-                     <div class="col-md-5">
-                        <span style="font-size:15px;"><strong>Indicatore   </strong></span>
-                     </div>
-                     <div class="col-md-4">
-                        <span style="font-size:15px;" id="val-ind"></span>
-                     </div>
-                     <div class="col-md-3"></div>
-                  </div>
-               </div>
-            </div>
+         <div class="col-md-2 line-right">
+           <h5 style="padding-left: 28px;"><strong>Elenco università:</strong></h5><br/>
+           <div id="ind-uni">
+            <input type="checkbox" value="99" id="uni99" name="check-uni"></input>
+            <label for="uni99"><strong>Tutte le università</strong></label>
             <br/>
-            <div class="card seleziona card-custom" id="container-trend">
-               <div class="card-body">
-                  <div class="row">
-                     <div class="col-md-5">
-                        <span style="font-size:15px;"><strong>Trend:</strong></span>
-                     </div>
-                     <div class="col-md-4">
-                        <span style="font-size:15px;" id="val-trend"></span>
-                     </div>
-                     <div class="col-md-3">
-                        <span id="freccia-rossa" style="width:35px;"><img style="width:35px; height:35px;" src="resources/freccia rossa.png"></img></span>
-                        <span id="freccia-verde"><img style="width:35px; height:35px;" src="resources/freccia verde.png"></img></span>
-                     </div>
-                  </div>
-               </div>
-            </div>
+            <input type="checkbox" value="999" id="uni999" name="check-uni"></input>
+            <label for="uni999"><strong>Tutte le università telematiche</strong></label>
+            <br/>
+            <input type="checkbox" value="50" id="uni50" name="check-uni"></input>
+            <label for="uni50"><strong>Tutte le università fisiche</strong></label>
+            <br/>
+           </div>
          </div>
+
+
+
+
          <div class="col-md-6">
             <div class="row">
                <div class="col-md-12">
@@ -91,24 +62,6 @@
          </div>
 		 <div class="col-md-2">
 			
-		 </div>
-      </div>
-      <div class="row">
-         <div class="col-md-4">
-			<p style="margin-left:2rem;"><strong>Descrizione indicatore:</strong></p>
-			<p style="margin-left:2rem;"><strong>Numeratore: </strong><span id="desc_numeratore"></span></p>
-			<p style="margin-left:2rem;"><strong>Denominatore: </strong><span id="desc_denominatore"></span></p>
-		</div>
-         <div class="col-md-6">
-            <div class="row">
-               <div class="col-md-12">
-                  <div class="grafico2">
-                     <canvas id="grafico-bar"></canvas>
-                  </div>
-               </div>
-            </div>
-         </div>
-		  <div class="col-md-2">
 		 </div>
       </div>
    </body>

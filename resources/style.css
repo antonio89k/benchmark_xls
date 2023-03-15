@@ -51,3 +51,15 @@
 .table-custom {
 	width: 80%;
 }
+
+input[type=checkbox] {
+	margin-left: 30px !important;
+}
+
+label {
+	padding-left: 5px;
+}
+
+.line-right {
+	border-right: 1px solid #000;
+}
