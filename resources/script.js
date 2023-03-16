@@ -251,8 +251,10 @@ function costruisciTabellaIndicatori() {
 			trend = 'ND';
 		}
 
+		let denIndicatore = lista_indicatori[k]['value'].substr(0,3);
+
 		$('#content-body').append('<tr>');
-		$('#content-body').append('<td>'+ listaIndicatori[k]['id'] +'</td>');
+		$('#content-body').append('<td>'+ denIndicatore +'</td>');
 		$('#content-body').append('<td>'+ descValPrec +'</td>');
 		$('#content-body').append('<td>'+ descVal2022 + '</td>');
 		$('#content-body').append('<td>'+ trend +'</td>');
