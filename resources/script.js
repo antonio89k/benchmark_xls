@@ -16,6 +16,7 @@ $(document).ready(function() {
 	lista_indicatori = JSON.parse(getLabelIndicatori());
 	popolaComboIndicatori(lista_indicatori);
 	popolaListaUniversita();
+	$('#table-custom-id').addClass('hide').removeClass('show');
 
 
 
@@ -72,10 +73,11 @@ $(document).ready(function() {
 			chartBubble = new Chart(ctxBubble, configBubble);
 
 			$('#grafico-d').addClass('show').removeClass('hide');
-
+			$('#table-custom-id').addClass('show').removeClass('hide');
 			costruisciTabellaIndicatori();
 		  } else if (checkboxSelezionate.length == 0 || checkboxSelezionate.length > 1) {
 			$('#grafico-d').addClass('hide').removeClass('show');
+			$('#table-custom-id').addClass('hide').removeClass('show');
 		  }		  
 
 	  });
@@ -231,7 +233,32 @@ function costruisciGraficoDispersione() {
 }
 
 function costruisciTabellaIndicatori() {
-	//alert("funzioen costruisci tabella indicatori");
+	var uniSelezionata = checkboxSelezionate[0];
+	var listaIndicatori = sorgente_dati[uniSelezionata]['indicatori'];
+	$('#content-body').empty();
+
+	for (var k=0; k<listaIndicatori.length; k++) {
+
+		let descValPrec = (listaIndicatori[k]['valore-iniziale'] == 'ND' || listaIndicatori[k]['valore-iniziale'] == 'NR') ? listaIndicatori[k]['valore-iniziale'] : listaIndicatori[k]['valore-iniziale'] + "%";
+		let descVal2022 = (listaIndicatori[k]['valore-2022'] == 'ND' || listaIndicatori[k]['valore-2022'] == 'NR') ? listaIndicatori[k]['valore-2022'] : listaIndicatori[k]['valore-2022'] + "%";
+		let trend;
+		
+		if (listaIndicatori[k]['valore-iniziale'] != 'ND' && listaIndicatori[k]['valore-iniziale'] != 'NR'
+				&& listaIndicatori[k]['valore-2022'] != 'ND' && listaIndicatori[k]['valore-2022'] != 'NR') {
+			trend = listaIndicatori[k]['valore-iniziale'] - listaIndicatori[k]['valore-2022'];
+			trend = trend.toFixed(3) + "%";
+		} else {
+			trend = 'ND';
+		}
+
+		$('#content-body').append('<tr>');
+		$('#content-body').append('<td>'+ listaIndicatori[k]['id'] +'</td>');
+		$('#content-body').append('<td>'+ descValPrec +'</td>');
+		$('#content-body').append('<td>'+ descVal2022 + '</td>');
+		$('#content-body').append('<td>'+ trend +'</td>');
+		$('#content-body').append('</tr>');
+	}
+
 }
 
 function selezionaDeselezionaTutteUni(checked) {
