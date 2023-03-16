@@ -1,18 +1,21 @@
-var config, configB;
-var myChartS, myChartB;
-var ctx, ctxB;
-var chart, chartB;
+var configBubble;
+var myChartBubble;
+var ctxBubble;
+var chartBubble;
 var desc_num_list = [];
 var desc_den_list = []; 
 var list_uni_fis = ["0","1","2","3","4","5","6","7","8","9","10","11","17","21","22","23","24","25","26"];
 var list_uni_tel = ["12","13","14","15","16","18","19","20"];
+var checkboxSelezionate;
+var sorgente_dati;
+var lista_indicatori;
 
 $(document).ready(function() {
 	
-	var sorgente_dati = JSON.parse(getSorgenteDati());
-	var lista_indicatori = JSON.parse(getLabelIndicatori());
+	sorgente_dati = JSON.parse(getSorgenteDati());
+	lista_indicatori = JSON.parse(getLabelIndicatori());
 	popolaComboIndicatori(lista_indicatori);
-	popolaListaUniversita(sorgente_dati);
+	popolaListaUniversita();
 
 
 
@@ -37,10 +40,10 @@ $(document).ready(function() {
 	chartB.canvas.parentNode.style.height = '400px';*/
 
 	let checkboxes = $("input[type=checkbox][name=check-uni]");
-	let enabledUni = [];
+	checkboxSelezionate = [];
 
 	checkboxes.change(function() {
-		enabledUni = checkboxes
+		checkboxSelezionate = checkboxes
 		  .filter(":checked")
 		  .map(function() { 
 			return this.value;
@@ -57,23 +60,42 @@ $(document).ready(function() {
 			selezionaDeselezionaSingolaUni(this.checked);
 		  }
 
+		  if (checkboxSelezionate.length == 1 && this.value != 99 && this.value != 999 && this.value != 50) {
+			configBubble = costruisciGraficoDispersione();
+			myChartBubble = document.getElementById('grafico-dispersione');
+			ctxBubble = myChartBubble.getContext('2d');
+
+			if (chartBubble != null) {
+				chartBubble.destroy();
+			}
+
+			chartBubble = new Chart(ctxBubble, configBubble);
+
+			$('#grafico-d').addClass('show').removeClass('hide');
+
+			costruisciTabellaIndicatori();
+		  } else if (checkboxSelezionate.length == 0 || checkboxSelezionate.length > 1) {
+			$('#grafico-d').addClass('hide').removeClass('show');
+		  }		  
+
 	  });
 	
-	
-	/*var checkbox = document.querySelector("input[name=checkbox]");
-
-	checkbox.addEventListener('change', function() {
-	if (this.checked) {
-		console.log("Checkbox is checked..");
-	} else {
-		console.log("Checkbox is not checked..");
-	}
-	});*/
-
-
-
-	
+		
 	$( "#ind-select" ).change(function() {
+
+		if (checkboxSelezionate.length == 1) {
+			configBubble = costruisciGraficoDispersione();
+			myChartBubble = document.getElementById('grafico-dispersione');
+			ctxBubble = myChartBubble.getContext('2d');
+
+			if (chartBubble != null) {
+				chartBubble.destroy();
+			}
+
+			chartBubble = new Chart(ctxBubble, configBubble);
+		}
+
+
 		/*chartB.data.labels = anni;
 		chartB.data.datasets[0].data = datasetNum;
 		chartB.data.datasets[1].data = datasetDen;
@@ -81,6 +103,136 @@ $(document).ready(function() {
 	});
 	
 });
+
+function costruisciGraficoDispersione() {
+
+	var elem_sel_ind = $('#ind-select').val();
+
+	var idUniSel = checkboxSelezionate[0];
+	var uniSelValueDataset = [];
+	var descUnivSel;
+	var listaAltreUniDataset = [];
+
+	var rapportoBolle;
+	
+	if (elem_sel_ind == 4) {
+		rapportoBolle = 0.1;
+	} else if (elem_sel_ind == 5) {
+		rapportoBolle = 300;
+	} else if (elem_sel_ind == 2){
+		rapportoBolle = 50;
+	} else {
+		rapportoBolle = 20;
+	}
+
+	for (let i=0; i<sorgente_dati.length; i++) {
+
+		var bollaUni = {x:i+1, 
+			y:0, 
+			r:sorgente_dati[i]['indicatori'][elem_sel_ind]['valore-2022']*rapportoBolle
+		};
+		
+		if (sorgente_dati[i]['id'] == idUniSel) {
+			descUnivSel = sorgente_dati[i]['value'];
+			uniSelValueDataset.push(bollaUni);
+		} else {
+			listaAltreUniDataset.push(bollaUni);
+		}
+	}
+
+	return {
+		type : 'bubble',
+		data : {
+			datasets : [ {
+				label : descUnivSel,
+				backgroundColor : 'rgb(30,144,255)',
+				borderColor : 'rgb(0,0,0)',
+				hoverBackgroundColor: 'rgb(30,100,255)',
+				data : uniSelValueDataset
+			},
+			{
+				label : 'Altre università',
+				data : listaAltreUniDataset,
+				backgroundColor : 'rgb(255,140,0)',
+				hoverBackgroundColor: 'rgb(255,89,0)',
+				borderColor : 'rgb(0,0,0)',
+				pointBackgroundColor: 'rgb(255,140,0)'
+			}
+			]
+		},
+		options : {
+			responsive: true,
+			tooltips : {
+				callbacks : {
+					title : function(tooltipItem, data) {
+
+						if (tooltipItem[0]['datasetIndex'] == 1)
+							return sorgente_dati[tooltipItem[0]['index']]['value'];
+						return descUnivSel;
+					},
+					label : function(tooltipItem, data) {
+						if (tooltipItem['datasetIndex'] == 1) {
+							valuePrec = Number(sorgente_dati[tooltipItem['index']]['indicatori'][elem_sel_ind]['valore-iniziale']);
+							value2022 = Number(sorgente_dati[tooltipItem['index']]['indicatori'][elem_sel_ind]['valore-2022']);
+							descPrec = 'Valore precedente: ' + valuePrec.toFixed(3) + "%";
+							desc2022 = 'Valore 2022: ' + value2022.toFixed(3) + "%";
+							valueTrend = valuePrec - value2022;
+							trend = 'Trend: ' + valueTrend.toFixed(3) + "%";
+						} else {
+							valuePrec = Number(sorgente_dati[idUniSel]['indicatori'][elem_sel_ind]['valore-iniziale']);
+							value2022 = Number(sorgente_dati[idUniSel]['indicatori'][elem_sel_ind]['valore-2022']);
+							descPrec = 'Valore precedente: ' + valuePrec.toFixed(3) + "%";
+							desc2022 = 'Valore 2022: ' + value2022.toFixed(3) + "%";
+							valueTrend = valuePrec - value2022;
+							trend = 'Trend: ' + valueTrend.toFixed(3) + "%";
+						}
+						
+						return [ descPrec, desc2022, trend ];
+
+					}
+				},
+				backgroundColor : '#FFF',
+				titleFontSize : 16,
+				titleFontColor : '#000',
+				bodyFontColor : '#000',
+				bodyFontSize : 14,
+				displayColors : false,
+				borderColor : 'rgba(0,0,0,1)',
+				borderWidth : 1
+			},
+			scales: {
+				 yAxes: [ {
+					ticks: {
+						min: -2,
+						max: 2
+					},
+					scaleLabel: {
+					  display: true,
+					  labelString: 'Valore indicatore'
+					}
+				 } ],
+				 xAxes : [ { 
+					scaleLabel: {
+					  display: true,
+					  labelString: 'Università'
+					}
+				 } ]
+			},
+			legend: {
+				display: true,
+				labels: {
+					useLineStyle: true,
+					usePointStyle: true
+				}
+			}
+		}
+	}
+
+}
+
+function costruisciTabellaIndicatori() {
+	//alert("funzioen costruisci tabella indicatori");
+}
 
 function selezionaDeselezionaTutteUni(checked) {
 	let checkboxes = $("input[type=checkbox][name=check-uni]");
@@ -122,31 +274,7 @@ function selezionaDeselezionaSingolaUni(checked) {
 	}
 }
 
-function popolaListaDenominatore() {
-	desc_den_list.push("CFU da conseguire");
-	desc_den_list.push("Immatricolati puri dal CdS nel x/x+1 (informazioneic00b)");
-	desc_den_list.push("CFU conseguiti all\'estero dagli iscritti regolari a.a. x/x+1 nell\'a.s.x+1");
-	desc_den_list.push("Totale rispondenti");
-	desc_den_list.push("Totale laureati nell\'anno x");
-	desc_den_list.push("Laureati magistrali x intervistati");
-	desc_den_list.push("Totale ore di docenza");
-	desc_den_list.push("Totale docenti di rif. nel CdS");
-
-}
-	
-function popolaListaNumeratore() {
-	desc_num_list.push("CFU conseguiti");
-	desc_num_list.push("Immatricolati puri in x/x+1 che entro x+1 hanno acquisito 2/3 di CFU");
-	desc_num_list.push("CFU conseguiti dagli iscritti regolari a.a.x/x+1 nell\'a.s.x+1");
-	desc_num_list.push("Nnumero soddisfatti (ALMALAUREA o indagine ateneo)");
-	desc_num_list.push("Numero laureati regolari nell\'anno x");
-	desc_num_list.push("Laureati magistrali x occupati ad 1 o tre anni");
-	desc_num_list.push("Ore docenza tempo indeterminato");
-	desc_num_list.push("Docenti di ruolo e di rif. nel CdS con SSD caratterizzante CdS");
-
-}
-
-function costruisciGraficoSerie(sorgente_dati) {
+function costruisciGraficoSerie() {
 	var elem_sel_ind = $('#ind-select').val();
 	
 	var anni = [];
@@ -220,7 +348,7 @@ function costruisciGraficoSerie(sorgente_dati) {
 	}
 }
 
-function costruisciGraficoBar(sorgente_dati) {
+function costruisciGraficoBar() {
 	var elem_sel_ind = $('#ind-select').val();
 	var elem_sel_anni = $('#anni-select').val();
 	
@@ -298,7 +426,7 @@ function costruisciGraficoBar(sorgente_dati) {
 	}
 }
 
-function popolaListaUniversita(sorgente_dati) {
+function popolaListaUniversita() {
 	var x = document.getElementById("ind-uni");
 	var checkbox;
 	var label;
