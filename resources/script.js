@@ -17,6 +17,7 @@ $(document).ready(function() {
 	popolaComboIndicatori(lista_indicatori);
 	popolaListaUniversita();
 	$('#table-custom-id').addClass('hide').removeClass('show');
+	$('#radio-top').addClass('hide').removeClass('show');
 
 
 
@@ -80,6 +81,12 @@ $(document).ready(function() {
 			$('#table-custom-id').addClass('hide').removeClass('show');
 		  }		  
 
+		  if (checkboxesSelezionateCount() > 10) {
+			$('#radio-top').addClass('show').removeClass('hide');
+		  } else {
+			$('#radio-top').addClass('hide').removeClass('show');
+		  }
+
 	  });
 	
 		
@@ -105,6 +112,17 @@ $(document).ready(function() {
 	});
 	
 });
+
+function checkboxesSelezionateCount() {
+	let checkboxes = $("input[type=checkbox][name=check-uni]");
+	let checkSel = 0;
+	for (var i=0; i<checkboxes.length; i++) {
+		if (checkboxes[i].checked) {
+			checkSel++;
+		}
+	}
+	return checkSel;	
+}
 
 function costruisciGraficoDispersione() {
 
