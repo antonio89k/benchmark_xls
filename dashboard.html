@@ -30,7 +30,7 @@
       </div>
       <br/>
 
-      
+
       <div class="row">
          <div class="col-md-2 line-right">
            <h5 style="padding-left: 28px;"><strong>Elenco università:</strong></h5><br/>
@@ -46,7 +46,9 @@
             <br/>
            </div>
          </div>
-         <div class="col-md-5">
+
+         <div class="col-md-10">
+
             <div id="radio-top" class="row" style="padding-left: 15px;">
                <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" name="top-value" id="top-five-id" value="5">
@@ -57,30 +59,37 @@
                   <label class="form-check-label" for="top-ten-id">Top 10</label>
                 </div>
             </div>
-            <div id="grafico-top-valore" class="row">
-               <canvas id="grafico-top-valore-chart"></canvas>
+
+            <div class="row">
+               <div class="col-md-6">
+                  <div id="grafico-top-valore" class="row">
+                     <canvas id="grafico-top-valore-chart"></canvas>
+                  </div>
+                  <div id="grafico-d">
+                     <canvas id="grafico-dispersione"></canvas>
+                  </div>
+               </div>
+               <div class="col-md-6">
+                  <table class="table table-striped table-custom" id="table-custom-id" style="margin-left: 2rem;">
+                     <thead>
+                        <tr>
+                           <th scope="col">Indicatore</th>
+                           <th scope="col">Valore anno precedente</th>
+                           <th scope="col">Valore anno 2022</th>
+                           <th scope="col">Trend</th>
+                        </tr>
+                     </thead>
+                     <tbody id="content-body">
+                     </tbody>
+                  </table>
+                  <div id="grafico-top-trend" class="row">
+                     <canvas id="grafico-top-trend-chart"></canvas>
+                  </div>
+               </div>
             </div>
-            <div id="grafico-d">
-               <canvas id="grafico-dispersione"></canvas>
-            </div>
-         </div>
-		 <div class="col-md-5">
-         <table class="table table-striped table-custom" id="table-custom-id" style="margin-left: 2rem;">
-            <thead>
-               <tr>
-                  <th scope="col">Indicatore</th>
-                  <th scope="col">Valore anno precedente</th>
-                  <th scope="col">Valore anno 2022</th>
-                  <th scope="col">Trend</th>
-               </tr>
-            </thead>
-            <tbody id="content-body">
-            </tbody>
-         </table>
-         <div id="grafico-top-trend" class="row">
-            <canvas id="grafico-top-trend-chart"></canvas>
-         </div>
+
 		 </div>
+
       </div>
    </body>
 </html>
