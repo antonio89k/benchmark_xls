@@ -1,7 +1,7 @@
-var configBubble;
-var myChartBubble;
-var ctxBubble;
-var chartBubble;
+var configBubble, configTopV, configTopT;
+var myChartBubble, myChartTopV, myChartTopT;
+var ctxBubble, ctxTopV, ctxTopT;
+var chartBubble, chartTopT, chartTopV;
 var desc_num_list = [];
 var desc_den_list = []; 
 var list_uni_fis = ["0","1","2","3","4","5","6","7","8","9","10","11","17","21","22","23","24","25","26"];
@@ -10,6 +10,8 @@ var checkboxSelezionate;
 var sorgente_dati;
 var lista_indicatori;
 var uni_top_sel = [];
+var uni_top_sel_trend = [];
+var uni_top_sel_val = [];
 
 $(document).ready(function() {
 	
@@ -44,6 +46,13 @@ $(document).ready(function() {
 
 	let checkboxes = $("input[type=checkbox][name=check-uni]");
 	checkboxSelezionate = [];
+
+	$('input[type=radio][name=top-value]').change(function() {
+		console.log(this.value);
+		costruisciGraficoTop();
+		creaStrutturaGraficoTopValue();
+		creaStrutturaGraficoTopTrend();
+	});
 
 	checkboxes.change(function() {
 		checkboxSelezionate = checkboxes
@@ -91,9 +100,13 @@ $(document).ready(function() {
 		  
 		  if (checkboxesSelezionateCount() > 5) {
 			$('#grafico-top-valore').addClass('show').removeClass('hide');
+			$('#grafico-top-trend').addClass('show').removeClass('hide');
 			costruisciGraficoTop();
+			creaStrutturaGraficoTopValue();
+			creaStrutturaGraficoTopTrend();
 		  } else {
 			$('#grafico-top-valore').addClass('hide').removeClass('show');
+			$('#grafico-top-trend').addClass('hide').removeClass('show');
 		  }
 
 	  });
@@ -113,6 +126,11 @@ $(document).ready(function() {
 			chartBubble = new Chart(ctxBubble, configBubble);
 		}
 
+		if (checkboxesSelezionateCount() > 5) {
+			costruisciGraficoTop();
+			creaStrutturaGraficoTopValue();
+			creaStrutturaGraficoTopTrend();
+		}
 
 		/*chartB.data.labels = anni;
 		chartB.data.datasets[0].data = datasetNum;
@@ -120,35 +138,163 @@ $(document).ready(function() {
 		chartB.update();*/
 	});
 
-	$( "#ind-select" ).change(function() {
-		costruisciGraficoTop();
-	});
-
-	// TODO aggiungere listener anche sui due radiobutton per costruire il grafico top valor e trend
 	
 });
+
+function creaStrutturaGraficoTopValue() {
+	let descUniSel = [];
+	let topValueSel = [];
+	let numero_top_value = $("#radio-top input[type='radio'][name='top-value']:checked").val();
+
+	for(let k=0; k<uni_top_sel_val.length; k++) {
+		descUniSel.push(uni_top_sel_val[k].uni);
+		topValueSel.push(uni_top_sel_val[k].value);
+	}
+	
+	var strutturaGraficoTopValue = {
+		type : 'horizontalBar',
+		data : {
+			labels : descUniSel,
+			datasets : [ {
+				label : 'Valore',
+				data : topValueSel,
+				backgroundColor : 'rgb(81, 136, 52)',
+				borderColor : 'rgb(65, 65, 65)',
+				pointBackgroundColor: 'rgb(237, 125, 49)'
+			}
+			]
+		},
+
+		options : {
+			responsive: true,
+			legend: {
+				display: false
+			},
+			title: {
+				display: true,
+				fontSize: 18,
+				fontColor: '#000',
+				fontFamily: 'Arial', 
+				position: 'top',
+				text: 'Top ' + numero_top_value + ' per Valore'
+			},
+			scales: {
+				xAxes: [{
+					scaleLabel: {
+						display: true,
+						labelString: "Valore indicatore"
+					}
+				}],
+				yAxes: [{
+					scaleLabel: {
+						display: true,
+						labelString: "Università"
+					}
+				}]
+			}
+		}
+	};
+
+	configTopV = strutturaGraficoTopValue;
+	myChartTopV = document.getElementById('grafico-top-valore-chart');
+	ctxTopV = myChartTopV.getContext('2d');
+
+	if (chartTopV != null) {
+		chartTopV.destroy();
+	}
+
+	chartTopV = new Chart(ctxTopV, configTopV);
+}
+
+function creaStrutturaGraficoTopTrend() {
+	let descUniSel = [];
+	let topTrendSel = [];
+	let numero_top_trend = $("#radio-top input[type='radio'][name='top-value']:checked").val();
+
+	for(let k=0; k<uni_top_sel_trend.length; k++) {
+		descUniSel.push(uni_top_sel_trend[k].uni);
+		topTrendSel.push(uni_top_sel_trend[k].trend);
+	}
+	
+	var strutturaGraficoTopTrend = {
+		type : 'horizontalBar',
+		data : {
+			labels : descUniSel,
+			datasets : [ {
+				label : 'Trend',
+				data : topTrendSel,
+				backgroundColor : 'rgb(81, 136, 52)',
+				borderColor : 'rgb(65, 65, 65)',
+				pointBackgroundColor: 'rgb(237, 125, 49)'
+			}
+			]
+		},
+
+		options : {
+			responsive: true,
+			legend: {
+				display: false
+			},
+			title: {
+				display: true,
+				fontSize: 18,
+				fontColor: '#000',
+				fontFamily: 'Arial', 
+				position: 'top',
+				text: 'Top ' + numero_top_trend + ' per Trend'
+			},
+			scales: {
+				xAxes: [{
+					scaleLabel: {
+						display: true,
+						labelString: "Trend"
+					}
+				}],
+				yAxes: [{
+					scaleLabel: {
+						display: true,
+						labelString: "Università"
+					}
+				}]
+			}
+		}
+	};
+
+	configTopT = strutturaGraficoTopTrend;
+	myChartTopT = document.getElementById('grafico-top-trend-chart');
+	ctxTopT = myChartTopT.getContext('2d');
+
+	if (chartTopT != null) {
+		chartTopT.destroy();
+	}
+
+	chartTopT = new Chart(ctxTopT, configTopT);
+}
 
 function costruisciGraficoTop() {
 	var elem_sel_ind = $('#ind-select').val();
 	var numero_top = (checkboxesSelezionateCount() > 10) ? $("#radio-top input[type='radio'][name='top-value']:checked").val() : 5;
 	
-
-
 	let checkboxes = $("input[type=checkbox][name=check-uni]");
 	let descUni, value2022Sel, valueInit;
 	uni_top_sel = [];
 	for (var i=0; i<checkboxes.length; i++) {
-		if (checkboxes[i].checked && checkboxes[i].value != 99 && checkboxes[i].value != 999 && checkboxes[i] != 50) {
+		if (checkboxes[i].checked && checkboxes[i].value != "99" && checkboxes[i].value != "999" && checkboxes[i].value != "50") {
 			descUni = sorgente_dati[checkboxes[i].value]['value'];
+
 			value2022Sel = sorgente_dati[checkboxes[i].value]['indicatori'][elem_sel_ind]['valore-2022'];
+			value2022Sel = (value2022Sel != "NR" && value2022Sel != "ND") ? value2022Sel : 0;
+			
 			valueInit = sorgente_dati[checkboxes[i].value]['indicatori'][elem_sel_ind]['valore-iniziale'];
-			trendSel = valueInit - value2022Sel; // TODO tener conto dei NR ed ND
+			valueInit = (valueInit != "NR" && valueInit != "ND") ? valueInit : 0;
+
+			trendSel = valueInit - value2022Sel; 
 			uni_top_sel.push({'uni': descUni, 'value': value2022Sel, 'trend': trendSel});
 		}
 	}
 
 	uni_top_sel.sort(compareValue);
-	var uni_top_sel_val = [];
+	uni_top_sel_val = [];
 
 	for (let k=0; k< uni_top_sel.length && k<numero_top; k++) {
 		uni_top_sel_val.push(uni_top_sel[k]);
@@ -156,7 +302,7 @@ function costruisciGraficoTop() {
 	
 	console.log(uni_top_sel_val);
 
-	var uni_top_sel_trend = [];
+	uni_top_sel_trend = [];
 	uni_top_sel.sort(compareTrend);
 
 	for (let k=0; k< uni_top_sel.length && k<numero_top; k++) {
@@ -170,21 +316,21 @@ function costruisciGraficoTop() {
 }
 
 function compareValue(a, b) {
-	if (a.value < b.value) {
-		return -1;
-	}
-	if (a.value > b.value) {
+	if (Number(a.value) < Number(b.value)) {
 		return 1;
+	}
+	if (Number(a.value) > Number(b.value)) {
+		return -1;
 	}
 	return 0;
 }
 
 function compareTrend(a, b) {
-	if (a.trend < b.trend) {
-		return -1;
-	}
-	if (a.trend > b.trend) {
+	if (Number(a.trend) < Number(b.trend)) {
 		return 1;
+	}
+	if (Number(a.trend) > Number(b.trend)) {
+		return -1;
 	}
 	return 0;
 }
