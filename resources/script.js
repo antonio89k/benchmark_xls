@@ -22,33 +22,10 @@ $(document).ready(function() {
 	$('#table-custom-id').addClass('hide').removeClass('show');
 	$('#radio-top').addClass('hide').removeClass('show');
 
-
-
-	
-
-	/*config = costruisciGraficoSerie(sorgente_dati);
-	myChartS = document.getElementById('grafico-serie');
-	ctx = myChartS.getContext('2d');
-	chart = new Chart(ctx, config);
-	
-	chart.options.scales.yAxes[0].ticks.min = 50;
-	
-	configB = costruisciGraficoBar(sorgente_dati);
-	myChartB = document.getElementById('grafico-bar');
-	ctxB = myChartB.getContext('2d');
-	chartB = new Chart(ctxB, configB);
-	
-	chart.canvas.parentNode.style.width = '700px';
-	chart.canvas.parentNode.style.height = '400px';
-	
-	chartB.canvas.parentNode.style.width = '700px';
-	chartB.canvas.parentNode.style.height = '400px';*/
-
 	let checkboxes = $("input[type=checkbox][name=check-uni]");
 	checkboxSelezionate = [];
 
 	$('input[type=radio][name=top-value]').change(function() {
-		console.log(this.value);
 		costruisciGraficoTop();
 		creaStrutturaGraficoTopValue();
 		creaStrutturaGraficoTopTrend();
@@ -132,10 +109,6 @@ $(document).ready(function() {
 			creaStrutturaGraficoTopTrend();
 		}
 
-		/*chartB.data.labels = anni;
-		chartB.data.datasets[0].data = datasetNum;
-		chartB.data.datasets[1].data = datasetDen;
-		chartB.update();*/
 	});
 
 	
@@ -347,8 +320,6 @@ function costruisciGraficoTop() {
 	for (let k=0; k< uni_top_sel.length && k<numero_top; k++) {
 		uni_top_sel_val.push(uni_top_sel[k]);
 	}
-	
-	console.log(uni_top_sel_val);
 
 	uni_top_sel_trend = [];
 	uni_top_sel.sort(compareTrend);
@@ -356,10 +327,6 @@ function costruisciGraficoTop() {
 	for (let k=0; k< uni_top_sel.length && k<numero_top; k++) {
 		uni_top_sel_trend.push(uni_top_sel[k]);
 	}
-
-	console.log(uni_top_sel_trend);
-
-	// costruisci la piramide a barre (grafico)
 	
 }
 
@@ -591,158 +558,6 @@ function selezionaDeselezionaSingolaUni(checked) {
 	}
 }
 
-function costruisciGraficoSerie() {
-	var elem_sel_ind = $('#ind-select').val();
-	
-	var anni = [];
-	var dataset = [];
-	
-	for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
-		anni.push(sorgente_dati[elem_sel_ind]['anni'][i]['value']);
-		dataset.push(sorgente_dati[elem_sel_ind]['anni'][i]['indicatore']);
-	}
-	
-	return {
-		type : 'line',
-		data : {
-			labels : anni,
-			datasets : [ {
-				label : 'Indicatore',
-				data : dataset,
-				type : 'line',
-				fill : false,
-				backgroundColor : 'rgb(237, 125, 49)',
-				borderColor : 'rgb(117, 192, 59)',
-				pointBackgroundColor: 'rgb(117, 192, 59)',
-				pointStyle: 'circle'
-			}]
-		},
-
-		options : {
-			responsive: true,
-			legend: {
-				display: false,
-				reverse: true,
-				position: 'right'
-			},
-			title: {
-				display: true,
-				fontSize: 18,
-				fontColor: '#000',
-				fontFamily: 'Arial', 
-				position: 'top',
-				text: 'Trend indicatore ANVUR'
-			},
-			scales: {
-				xAxes: [{
-					scaleLabel: {
-						display: true,
-						labelString: "Anno accademico"
-					}
-				}],
-				yAxes: [{
-					scaleLabel: {
-						display: true,
-						labelString: "Indicatore ANVUR"
-					},
-					ticks: {
-						callback: function(value, index, values) {
-							if ($('#ind-select').val() == 2) {
-								return value + "\u2030";	
-							} else {
-								return value + "%";
-							}
-						}
-					}
-				}]
-			},
-			elements : {
-				line : {
-					tension : 0
-				}
-			}
-		}
-	}
-}
-
-function costruisciGraficoBar() {
-	var elem_sel_ind = $('#ind-select').val();
-	var elem_sel_anni = $('#anni-select').val();
-	
-	var anni = [];
-	var datasetNum = [];
-	var datasetDen = [];
-	
-	if (elem_sel_anni == "-1") {
-		for (var i=0; i<sorgente_dati[elem_sel_ind]['anni'].length; i++) {
-		anni.push(sorgente_dati[elem_sel_ind]['anni'][i]['value']);
-		datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][i]['numeratore']);
-		datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][i]['denominatore']);
-		}
-	} else {
-		anni.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['value']);
-		datasetNum.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['numeratore']);
-		datasetDen.push(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['denominatore']);
-	}
-	
-	
-	
-	return {
-		type : 'bar',
-		data : {
-			labels : anni,
-			datasets : [ {
-				label : 'Numeratore',
-				data : datasetNum,
-				type : 'bar',
-				backgroundColor : 'rgb(81, 136, 52)',
-				borderColor : 'rgb(65, 65, 65)',
-				pointBackgroundColor: 'rgb(237, 125, 49)'
-			},
-			{
-				label : 'Denominatore',
-				data : datasetDen,
-				type : 'bar',
-				backgroundColor : 'rgb(0, 131, 208)',
-				borderColor : 'rgb(65, 65, 65)',
-				pointBackgroundColor: 'rgb(237, 125, 49)'
-			}
-			]
-		},
-
-		options : {
-			responsive: true,
-			legend: {
-				display: true,
-				reverse: true,
-				position: 'right'
-			},
-			title: {
-				display: true,
-				fontSize: 18,
-				fontColor: '#000',
-				fontFamily: 'Arial', 
-				position: 'top',
-				text: 'Numeratore & Denominatore'
-			},
-			scales: {
-				xAxes: [{
-					scaleLabel: {
-						display: true,
-						labelString: "Anno accademico"
-					}
-				}],
-				yAxes: [{
-					scaleLabel: {
-						display: true,
-						labelString: "Valore assoluto"
-					}
-				}]
-			}
-		}
-	}
-}
-
 function popolaListaUniversita() {
 	var x = document.getElementById("ind-uni");
 	var checkbox;
@@ -779,89 +594,6 @@ function popolaComboIndicatori(lista_indicatori) {
 		x.add(option);
 	}
 		
-}
-
-function aggiornaValoriSingoli(sorgente_dati) {
-	var elem_sel_ind = $('#ind-select').val();
-	var elem_sel_anni = $('#anni-select').val();
-	
-	if (elem_sel_anni != '-1') {
-		$('#container-ind').addClass('show').removeClass('hide');
-		$('#container-trend').addClass('show').removeClass('hide');
-		
-		$('#table-custom-id').addClass('hide').removeClass('show');
-		
-		if (elem_sel_ind == 2) {
-			$('#val-ind').text(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['indicatore'] + "\u2030");
-		} else {
-			$('#val-ind').text(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['indicatore'] + "%");
-		}
-		
-		if (elem_sel_anni == 0) {
-			$('#val-trend').text("-");
-		} else if (elem_sel_ind == 2) {
-			$('#val-trend').text(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['trend'] + "\u2030");
-		} else {
-			$('#val-trend').text(sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['trend'] + "%");
-		}
-		
-		if (elem_sel_anni != 0 && sorgente_dati[elem_sel_ind]['anni'][elem_sel_anni]['trend'] < 0) {
-			$('#freccia-rossa').addClass('show').removeClass('hide');
-			$('#freccia-verde').addClass('hide').removeClass('show');
-		} else if (elem_sel_anni != 0){
-			$('#freccia-rossa').addClass('hide').removeClass('show');
-			$('#freccia-verde').addClass('show').removeClass('hide');
-		} else {
-			$('#freccia-rossa').addClass('hide').removeClass('show');
-			$('#freccia-verde').addClass('hide').removeClass('show');
-		}
-		
-	} else {
-		$('#container-ind').addClass('hide').removeClass('show');
-		$('#container-trend').addClass('hide').removeClass('show');
-		$('#table-custom-id').addClass('show').removeClass('hide');
-		
-		var anno, indicatore, trend;
-		
-		$('#content-body').empty();
-		
-		for (var k=0; k<sorgente_dati[elem_sel_ind]['anni'].length; k++) {
-			anno = sorgente_dati[elem_sel_ind]['anni'][k]['value'];
-			indicatore = sorgente_dati[elem_sel_ind]['anni'][k]['indicatore'];
-			
-			if (k == 0) {
-				trend = '-';
-			} else {
-				trend = sorgente_dati[elem_sel_ind]['anni'][k]['trend'];	
-			}
-			
-			$('#content-body').append('<tr>');
-			$('#content-body').append('<td>'+anno+'</td>');
-			
-			if (elem_sel_ind == 2) {
-				$('#content-body').append('<td>'+indicatore+'\u2030 </td>');
-			} else {
-				$('#content-body').append('<td>'+indicatore+'% </td>');
-			}
-			
-			if (k == 0) {
-				$('#content-body').append('<td>'+trend+'</td>');
-			} else if (elem_sel_ind == 2) {
-				$('#content-body').append('<td>'+trend+'\u2030</td>');	
-			} else {
-				$('#content-body').append('<td>'+trend+'%</td>');	
-			}
-			
-			if (k != 0 && trend < 0) {
-				$('#content-body').append('<td><img style="width:20px; height:20px;" src="resources/freccia rossa.png"></img></td>');	
-			} else if (k != 0) {
-				$('#content-body').append('<td><img style="width:20px; height:20px;" src="resources/freccia verde.png"></img></td>');	
-			}
-						
-			$('#content-body').append('</tr>');
-		}
-		
-	}
 }
 
 function getLabelIndicatori() {
