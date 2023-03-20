@@ -161,7 +161,7 @@ function creaStrutturaGraficoTopValue() {
 				yAxes: [{
 					scaleLabel: {
 						display: true,
-						labelString: "Università"
+						labelString: "Universita\'"
 					}
 				}]
 			},
@@ -250,7 +250,7 @@ function creaStrutturaGraficoTopTrend() {
 				yAxes: [{
 					scaleLabel: {
 						display: true,
-						labelString: "Università"
+						labelString: "Universita\'"
 					}
 				}]
 			},
@@ -408,7 +408,7 @@ function costruisciGraficoDispersione() {
 				data : uniSelValueDataset
 			},
 			{
-				label : 'Altre università',
+				label : 'Altre universita\'',
 				data : listaAltreUniDataset,
 				backgroundColor : 'rgb(255,140,0)',
 				hoverBackgroundColor: 'rgb(255,89,0)',
@@ -471,7 +471,7 @@ function costruisciGraficoDispersione() {
 				 xAxes : [ { 
 					scaleLabel: {
 					  display: true,
-					  labelString: 'Università'
+					  labelString: 'Universita\''
 					}
 				 } ]
 			},
@@ -621,7 +621,7 @@ function getLabelIndicatori() {
 		},
 		{
 			"id" : "5",
-			"value": "D_A (D_C Scuole Superiori) - Proporzione di CFU conseguiti all'estero dagli studenti, ivi inclusi quelli acquisiti durante periodi di “mobilità virtuale”"
+			"value": "D_A (D_C Scuole Superiori) - Proporzione di CFU conseguiti all'estero dagli studenti, ivi inclusi quelli acquisiti durante periodi di 'mobilita\' virtuale'"
 		},
 		{
 			"id" : "6",
