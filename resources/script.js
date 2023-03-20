@@ -191,6 +191,27 @@ function creaStrutturaGraficoTopValue() {
 						labelString: "Università"
 					}
 				}]
+			},
+			tooltips : {
+				callbacks : {
+					title : function(tooltipItem, data) {
+						return uni_top_sel_val[tooltipItem[0]['index']].uni;
+					},
+					label : function(tooltipItem, data) {
+						value = Number(uni_top_sel_val[tooltipItem['index']].value);
+						descValue = 'Valore 2022: ' + value.toFixed(3) + "%";
+						return [ descValue ];
+
+					}
+				},
+				backgroundColor : '#FFF',
+				titleFontSize : 16,
+				titleFontColor : '#000',
+				bodyFontColor : '#000',
+				bodyFontSize : 14,
+				displayColors : false,
+				borderColor : 'rgba(0,0,0,1)',
+				borderWidth : 1
 			}
 		}
 	};
@@ -259,6 +280,27 @@ function creaStrutturaGraficoTopTrend() {
 						labelString: "Università"
 					}
 				}]
+			},
+			tooltips : {
+				callbacks : {
+					title : function(tooltipItem, data) {
+						return uni_top_sel_trend[tooltipItem[0]['index']].uni;
+					},
+					label : function(tooltipItem, data) {
+						value = Number(uni_top_sel_trend[tooltipItem['index']].trend);
+						descValue = 'Trend: ' + value.toFixed(3) + "%";
+						return [ descValue ];
+
+					}
+				},
+				backgroundColor : '#FFF',
+				titleFontSize : 16,
+				titleFontColor : '#000',
+				bodyFontColor : '#000',
+				bodyFontSize : 14,
+				displayColors : false,
+				borderColor : 'rgba(0,0,0,1)',
+				borderWidth : 1
 			}
 		}
 	};
