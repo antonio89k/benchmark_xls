@@ -204,6 +204,9 @@ function creaStrutturaGraficoTopValue() {
 	}
 
 	chartTopV = new Chart(ctxTopV, configTopV);
+	chartTopV.canvas.parentNode.style.width = '700px';
+	chartTopV.canvas.parentNode.style.height = '400px';
+	chartTopV.update();
 }
 
 function creaStrutturaGraficoTopTrend() {
@@ -223,7 +226,7 @@ function creaStrutturaGraficoTopTrend() {
 			datasets : [ {
 				label : 'Trend',
 				data : topTrendSel,
-				backgroundColor : 'rgb(81, 136, 52)',
+				backgroundColor : 'rgb(0, 131, 208)',
 				borderColor : 'rgb(65, 65, 65)',
 				pointBackgroundColor: 'rgb(237, 125, 49)'
 			}
@@ -269,6 +272,9 @@ function creaStrutturaGraficoTopTrend() {
 	}
 
 	chartTopT = new Chart(ctxTopT, configTopT);
+	chartTopT.canvas.parentNode.style.width = '700px';
+	chartTopT.canvas.parentNode.style.height = '400px';
+	chartTopT.update();
 }
 
 function costruisciGraficoTop() {
