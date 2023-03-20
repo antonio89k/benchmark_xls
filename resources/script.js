@@ -9,6 +9,7 @@ var list_uni_tel = ["12","13","14","15","16","18","19","20"];
 var checkboxSelezionate;
 var sorgente_dati;
 var lista_indicatori;
+var uni_top_sel = [];
 
 $(document).ready(function() {
 	
@@ -62,7 +63,7 @@ $(document).ready(function() {
 			selezionaDeselezionaSingolaUni(this.checked);
 		  }
 
-		  if (checkboxSelezionate.length == 1 && this.value != 99 && this.value != 999 && this.value != 50) {
+		  if (checkboxesSelezionateCount() == 1 && this.value != 99 && this.value != 999 && this.value != 50) {
 			configBubble = costruisciGraficoDispersione();
 			myChartBubble = document.getElementById('grafico-dispersione');
 			ctxBubble = myChartBubble.getContext('2d');
@@ -76,15 +77,23 @@ $(document).ready(function() {
 			$('#grafico-d').addClass('show').removeClass('hide');
 			$('#table-custom-id').addClass('show').removeClass('hide');
 			costruisciTabellaIndicatori();
-		  } else if (checkboxSelezionate.length == 0 || checkboxSelezionate.length > 1) {
+		  } else if (checkboxesSelezionateCount() == 0 || checkboxesSelezionateCount() > 1) {
 			$('#grafico-d').addClass('hide').removeClass('show');
 			$('#table-custom-id').addClass('hide').removeClass('show');
-		  }		  
+		  }		
 
 		  if (checkboxesSelezionateCount() > 10) {
 			$('#radio-top').addClass('show').removeClass('hide');
+			$('#top-five-id')[0].checked = true;
 		  } else {
 			$('#radio-top').addClass('hide').removeClass('show');
+		  }
+		  
+		  if (checkboxesSelezionateCount() > 5) {
+			$('#grafico-top-valore').addClass('show').removeClass('hide');
+			costruisciGraficoTop();
+		  } else {
+			$('#grafico-top-valore').addClass('hide').removeClass('show');
 		  }
 
 	  });
@@ -92,7 +101,7 @@ $(document).ready(function() {
 		
 	$( "#ind-select" ).change(function() {
 
-		if (checkboxSelezionate.length == 1) {
+		if (checkboxesSelezionateCount() == 1) {
 			configBubble = costruisciGraficoDispersione();
 			myChartBubble = document.getElementById('grafico-dispersione');
 			ctxBubble = myChartBubble.getContext('2d');
@@ -110,8 +119,75 @@ $(document).ready(function() {
 		chartB.data.datasets[1].data = datasetDen;
 		chartB.update();*/
 	});
+
+	$( "#ind-select" ).change(function() {
+		costruisciGraficoTop();
+	});
+
+	// TODO aggiungere listener anche sui due radiobutton per costruire il grafico top valor e trend
 	
 });
+
+function costruisciGraficoTop() {
+	var elem_sel_ind = $('#ind-select').val();
+	var numero_top = (checkboxesSelezionateCount() > 10) ? $("#radio-top input[type='radio'][name='top-value']:checked").val() : 5;
+	
+
+
+	let checkboxes = $("input[type=checkbox][name=check-uni]");
+	let descUni, value2022Sel, valueInit;
+	uni_top_sel = [];
+	for (var i=0; i<checkboxes.length; i++) {
+		if (checkboxes[i].checked && checkboxes[i].value != 99 && checkboxes[i].value != 999 && checkboxes[i] != 50) {
+			descUni = sorgente_dati[checkboxes[i].value]['value'];
+			value2022Sel = sorgente_dati[checkboxes[i].value]['indicatori'][elem_sel_ind]['valore-2022'];
+			valueInit = sorgente_dati[checkboxes[i].value]['indicatori'][elem_sel_ind]['valore-iniziale'];
+			trendSel = valueInit - value2022Sel; // TODO tener conto dei NR ed ND
+			uni_top_sel.push({'uni': descUni, 'value': value2022Sel, 'trend': trendSel});
+		}
+	}
+
+	uni_top_sel.sort(compareValue);
+	var uni_top_sel_val = [];
+
+	for (let k=0; k< uni_top_sel.length && k<numero_top; k++) {
+		uni_top_sel_val.push(uni_top_sel[k]);
+	}
+	
+	console.log(uni_top_sel_val);
+
+	var uni_top_sel_trend = [];
+	uni_top_sel.sort(compareTrend);
+
+	for (let k=0; k< uni_top_sel.length && k<numero_top; k++) {
+		uni_top_sel_trend.push(uni_top_sel[k]);
+	}
+
+	console.log(uni_top_sel_trend);
+
+	// costruisci la piramide a barre (grafico)
+	
+}
+
+function compareValue(a, b) {
+	if (a.value < b.value) {
+		return -1;
+	}
+	if (a.value > b.value) {
+		return 1;
+	}
+	return 0;
+}
+
+function compareTrend(a, b) {
+	if (a.trend < b.trend) {
+		return -1;
+	}
+	if (a.trend > b.trend) {
+		return 1;
+	}
+	return 0;
+}
 
 function checkboxesSelezionateCount() {
 	let checkboxes = $("input[type=checkbox][name=check-uni]");
