@@ -397,6 +397,16 @@ function costruisciGraficoDispersione() {
 		if (sorgente_dati[i]['id'] == idUniSel) {
 			descUnivSel = sorgente_dati[i]['value'];
 			uniSelValueDataset.push(bollaUni);
+
+			if (bollaUni.r == 0) {
+				// nascondi grafico a dispersione e allarga tabella se il valore per l'uni selezionata è zero
+				$('#grafico-d-div').addClass('hide').removeClass('show');
+				$('#table-custom-div').addClass('col-md-12').removeClass('col-md-6');
+			} else {
+				$('#grafico-d-div').addClass('show').removeClass('hide');
+				$('#table-custom-div').addClass('col-md-6').removeClass('col-md-12');
+			}
+
 		} else {
 			listaAltreUniDataset.push(bollaUni);
 			listaAltreUniDatasetID.push(sorgente_dati[i]['id']);
