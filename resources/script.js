@@ -517,14 +517,16 @@ function costruisciTabellaIndicatori() {
 
 		let descValPrec = (listaIndicatori[k]['valore-iniziale'] == 'ND' || listaIndicatori[k]['valore-iniziale'] == 'NR') ? listaIndicatori[k]['valore-iniziale'] : listaIndicatori[k]['valore-iniziale'] + "%";
 		let descVal2022 = (listaIndicatori[k]['valore-2022'] == 'ND' || listaIndicatori[k]['valore-2022'] == 'NR') ? listaIndicatori[k]['valore-2022'] : listaIndicatori[k]['valore-2022'] + "%";
-		let trend;
+		let trend, trendValue;
 		
 		if (listaIndicatori[k]['valore-iniziale'] != 'ND' && listaIndicatori[k]['valore-iniziale'] != 'NR'
 				&& listaIndicatori[k]['valore-2022'] != 'ND' && listaIndicatori[k]['valore-2022'] != 'NR') {
 			trend = listaIndicatori[k]['valore-iniziale'] - listaIndicatori[k]['valore-2022'];
+			trendValue = trend;
 			trend = trend.toFixed(3) + "%";
 		} else {
 			trend = 'ND';
+			trendValue = 0;
 		}
 
 		let denIndicatore = lista_indicatori[k]['value'].substr(0,3);
@@ -534,6 +536,17 @@ function costruisciTabellaIndicatori() {
 		$('#content-body').append('<td>'+ descValPrec +'</td>');
 		$('#content-body').append('<td>'+ descVal2022 + '</td>');
 		$('#content-body').append('<td>'+ trend +'</td>');
+
+		if (trendValue != 0) {
+			if (trendValue > 0) {
+				$('#content-body').append('<td><img style="width:20px; height:20px;" src="resources/freccia verde.png"></img></td>');
+			} else {
+				$('#content-body').append('<td><img style="width:20px; height:20px;" src="resources/freccia rossa.png"></img></td>');
+			}
+		} else {
+			$('#content-body').append('<td></td>');
+		}
+
 		$('#content-body').append('</tr>');
 	}
 
