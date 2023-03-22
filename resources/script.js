@@ -369,6 +369,7 @@ function costruisciGraficoDispersione() {
 	var uniSelValueDataset = [];
 	var descUnivSel;
 	var listaAltreUniDataset = [];
+	var listaAltreUniDatasetID = [];
 
 	var rapportoBolle;
 	
@@ -384,9 +385,13 @@ function costruisciGraficoDispersione() {
 
 	for (let i=0; i<sorgente_dati.length; i++) {
 
+		var raggio = (sorgente_dati[i]['indicatori'][elem_sel_ind]['valore-2022'] != "NR" 
+						&& sorgente_dati[i]['indicatori'][elem_sel_ind]['valore-2022'] != "ND") 
+						? sorgente_dati[i]['indicatori'][elem_sel_ind]['valore-2022'] * rapportoBolle : 0;
+
 		var bollaUni = {x:i+1, 
 			y:0, 
-			r:sorgente_dati[i]['indicatori'][elem_sel_ind]['valore-2022']*rapportoBolle
+			r:raggio
 		};
 		
 		if (sorgente_dati[i]['id'] == idUniSel) {
@@ -394,6 +399,7 @@ function costruisciGraficoDispersione() {
 			uniSelValueDataset.push(bollaUni);
 		} else {
 			listaAltreUniDataset.push(bollaUni);
+			listaAltreUniDatasetID.push(sorgente_dati[i]['id']);
 		}
 	}
 
@@ -422,26 +428,37 @@ function costruisciGraficoDispersione() {
 			tooltips : {
 				callbacks : {
 					title : function(tooltipItem, data) {
-
 						if (tooltipItem[0]['datasetIndex'] == 1)
-							return sorgente_dati[tooltipItem[0]['index']]['value'];
+							return sorgente_dati[listaAltreUniDatasetID[tooltipItem[0]['index']]]['value'];
 						return descUnivSel;
 					},
 					label : function(tooltipItem, data) {
 						if (tooltipItem['datasetIndex'] == 1) {
-							valuePrec = Number(sorgente_dati[tooltipItem['index']]['indicatori'][elem_sel_ind]['valore-iniziale']);
-							value2022 = Number(sorgente_dati[tooltipItem['index']]['indicatori'][elem_sel_ind]['valore-2022']);
-							descPrec = 'Valore precedente: ' + valuePrec.toFixed(3) + "%";
-							desc2022 = 'Valore 2022: ' + value2022.toFixed(3) + "%";
-							valueTrend = valuePrec - value2022;
-							trend = 'Trend: ' + valueTrend.toFixed(3) + "%";
+							var indiceAltreUni = listaAltreUniDatasetID[tooltipItem['index']];
+							valuePrec = sorgente_dati[indiceAltreUni]['indicatori'][elem_sel_ind]['valore-iniziale'];
+							valuePrec = isValueND(valuePrec) ? 0 : Number(valuePrec);
+							value2022 = sorgente_dati[indiceAltreUni]['indicatori'][elem_sel_ind]['valore-2022'];
+							value2022 = isValueND(value2022) ? 0 : Number(value2022);
+							descPrec = 'Valore precedente: ';
+							descPrec += (isValueND(sorgente_dati[indiceAltreUni]['indicatori'][elem_sel_ind]['valore-iniziale'])) ? "ND" : valuePrec.toFixed(3) + "%";
+							desc2022 = 'Valore 2022: ';
+							desc2022 += (isValueND(sorgente_dati[indiceAltreUni]['indicatori'][elem_sel_ind]['valore-2022'])) ? "ND" : value2022.toFixed(3) + "%";
+							valueTrend = (isValueND(sorgente_dati[indiceAltreUni]['indicatori'][elem_sel_ind]['valore-iniziale']) 
+										   || isValueND(sorgente_dati[indiceAltreUni]['indicatori'][elem_sel_ind]['valore-2022'])) ? "ND" : (valuePrec - value2022).toFixed(3) + "%";
+							trend = 'Trend: ' + valueTrend;
 						} else {
-							valuePrec = Number(sorgente_dati[idUniSel]['indicatori'][elem_sel_ind]['valore-iniziale']);
-							value2022 = Number(sorgente_dati[idUniSel]['indicatori'][elem_sel_ind]['valore-2022']);
-							descPrec = 'Valore precedente: ' + valuePrec.toFixed(3) + "%";
-							desc2022 = 'Valore 2022: ' + value2022.toFixed(3) + "%";
-							valueTrend = valuePrec - value2022;
-							trend = 'Trend: ' + valueTrend.toFixed(3) + "%";
+							valuePrec = sorgente_dati[idUniSel]['indicatori'][elem_sel_ind]['valore-iniziale'];
+							valuePrec = isValueND(valuePrec) ? 0 : Number(valuePrec);
+							value2022 = sorgente_dati[idUniSel]['indicatori'][elem_sel_ind]['valore-2022'];
+							value2022 = isValueND(value2022) ? 0 : Number(value2022);
+
+							descPrec = 'Valore precedente: ';
+							descPrec += (isValueND(sorgente_dati[idUniSel]['indicatori'][elem_sel_ind]['valore-iniziale'])) ? "ND" : valuePrec.toFixed(3) + "%";
+							desc2022 = 'Valore 2022: ';
+							desc2022 += (isValueND(sorgente_dati[idUniSel]['indicatori'][elem_sel_ind]['valore-2022'])) ? "ND" : value2022.toFixed(3) + "%";
+							valueTrend = (isValueND(sorgente_dati[idUniSel]['indicatori'][elem_sel_ind]['valore-iniziale']) 
+										   || isValueND(sorgente_dati[idUniSel]['indicatori'][elem_sel_ind]['valore-2022'])) ? "ND" : (valuePrec - value2022).toFixed(3) + "%";
+							trend = 'Trend: ' + valueTrend;
 						}
 						
 						return [ descPrec, desc2022, trend ];
@@ -485,6 +502,10 @@ function costruisciGraficoDispersione() {
 		}
 	}
 
+}
+
+function isValueND (value) {
+	return (value == "NR" || value == "ND");
 }
 
 function costruisciTabellaIndicatori() {
