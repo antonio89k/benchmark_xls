@@ -68,14 +68,14 @@ $(document).ready(function() {
 			$('#table-custom-id').addClass('hide').removeClass('show');
 		  }		
 
-		  if (checkboxesSelezionateCount() > 10) {
+		  if (checkboxesSelezionateCount() > 9) {
 			$('#radio-top').addClass('show').removeClass('hide');
 			$('#top-five-id')[0].checked = true;
 		  } else {
 			$('#radio-top').addClass('hide').removeClass('show');
 		  }
 		  
-		  if (checkboxesSelezionateCount() > 5) {
+		  if (checkboxesSelezionateCount() > 4) {
 			$('#grafico-top-valore').addClass('show').removeClass('hide');
 			$('#grafico-top-trend').addClass('show').removeClass('hide');
 			costruisciGraficoTop();
@@ -103,7 +103,7 @@ $(document).ready(function() {
 			chartBubble = new Chart(ctxBubble, configBubble);
 		}
 
-		if (checkboxesSelezionateCount() > 5) {
+		if (checkboxesSelezionateCount() > 4) {
 			costruisciGraficoTop();
 			creaStrutturaGraficoTopValue();
 			creaStrutturaGraficoTopTrend();
@@ -117,7 +117,7 @@ $(document).ready(function() {
 function creaStrutturaGraficoTopValue() {
 	let descUniSel = [];
 	let topValueSel = [];
-	let numero_top_value = $("#radio-top input[type='radio'][name='top-value']:checked").val();
+	let numero_top_value = (checkboxesSelezionateCount() < 10) ? 5 : $("#radio-top input[type='radio'][name='top-value']:checked").val();
 
 	for(let k=0; k<uni_top_sel_val.length; k++) {
 		descUniSel.push(uni_top_sel_val[k].uni);
@@ -206,7 +206,7 @@ function creaStrutturaGraficoTopValue() {
 function creaStrutturaGraficoTopTrend() {
 	let descUniSel = [];
 	let topTrendSel = [];
-	let numero_top_trend = $("#radio-top input[type='radio'][name='top-value']:checked").val();
+	let numero_top_trend = (checkboxesSelezionateCount() < 10) ? 5 : $("#radio-top input[type='radio'][name='top-value']:checked").val();
 
 	for(let k=0; k<uni_top_sel_trend.length; k++) {
 		descUniSel.push(uni_top_sel_trend[k].uni);
@@ -294,7 +294,7 @@ function creaStrutturaGraficoTopTrend() {
 
 function costruisciGraficoTop() {
 	var elem_sel_ind = $('#ind-select').val();
-	var numero_top = (checkboxesSelezionateCount() > 10) ? $("#radio-top input[type='radio'][name='top-value']:checked").val() : 5;
+	var numero_top = (checkboxesSelezionateCount() > 9) ? $("#radio-top input[type='radio'][name='top-value']:checked").val() : 5;
 	
 	let checkboxes = $("input[type=checkbox][name=check-uni]");
 	let descUni, value2022Sel, valueInit;
