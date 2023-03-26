@@ -21,6 +21,7 @@ $(document).ready(function() {
 	popolaListaUniversita();
 	$('#table-custom-id').addClass('hide').removeClass('show');
 	$('#radio-top').addClass('hide').removeClass('show');
+	$('#grafico-d').addClass('hide').removeClass('show');
 
 	let checkboxes = $("input[type=checkbox][name=check-uni]");
 	checkboxSelezionate = [];
