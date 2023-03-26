@@ -487,18 +487,19 @@ function costruisciGraficoDispersione() {
 			scales: {
 				 yAxes: [ {
 					ticks: {
-						min: -2,
-						max: 2
-					},
-					scaleLabel: {
-					  display: true,
-					  labelString: 'Valore indicatore'
+						callback: function(value, index, values) {
+							return " ";
+						},
+						scaleLabel: {
+							display: true
+						}
 					}
 				 } ],
 				 xAxes : [ { 
-					scaleLabel: {
-					  display: true,
-					  labelString: 'Universita\''
+					ticks: {
+						callback: function(value, index, values) {
+							return "";
+						}
 					}
 				 } ]
 			},
