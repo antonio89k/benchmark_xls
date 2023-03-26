@@ -156,7 +156,7 @@ function creaStrutturaGraficoTopValue() {
 				xAxes: [{
 					scaleLabel: {
 						display: true,
-						labelString: "Valore indicatore"
+						labelString: "Valore indicatore anno 2022"
 					}
 				}],
 				yAxes: [{
@@ -245,7 +245,7 @@ function creaStrutturaGraficoTopTrend() {
 				xAxes: [{
 					scaleLabel: {
 						display: true,
-						labelString: "Trend"
+						labelString: "Trend relativo all'anno 2022"
 					}
 				}],
 				yAxes: [{
