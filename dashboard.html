@@ -17,6 +17,9 @@
             <img src="resources/logo.png" alt="Logo" width="100" height="100" class="d-inline-block align-text-top">
             <span class="text-logo">Benchmark indicatori di monitoraggio</span>
             </a>
+            <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#modale-istruzioni">
+               Come utilizzare la dashboard
+            </button>
          </div>
       </nav>
       <br/>
@@ -92,6 +95,33 @@
                      <tbody id="content-body">
                      </tbody>
                   </table>
+               </div>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modale-istruzioni" tabindex="-1" role="dialog" aria-labelledby="modaleIstruzioniTitolo" aria-hidden="true">
+               <div class="modal-dialog modal-dialog-centered" role="document">
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <h5 class="modal-title" id="modaleIstruzioniTitolo">Istruzioni utilizzo dashboard</h5>
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                     <span aria-hidden="true">&times;</span>
+                     </button>
+                  </div>
+                  <div class="modal-body">
+                     <li>Selezionare almeno un'universit&agrave; dall'elenco presente sulla sinistra per visualizzare il rispettivo grafico a dispersione e relativa tabella di tutti gli indicatori, in relazione all'indicatore selezionato, rispetto alle altre universit&agrave;</li>
+                     <li>Modificando l'indicatore di rilevanza, il grafico a dispersione verr&agrave; aggiornato automaticamente.</li>
+                     <li>Se per un indicatore specifico selezionato non &egrave; presente il valore indicatore 2022, il grafico a dispersione non verr&agrave; visualizzato.</li>
+                     <br/>
+                     <li>Selezionando, invece, almeno 5 universit&agrave; verranno visualizzati due grafici a piramide contenenti i valori "valore 2022" e "trend 2022", relative all'indicatore selezionato.</li>
+                     <li>Selezionando, invece, almeno 10 universit&agrave; verranno visualizzati due grafici a piramide contenenti i valori "valore 2022" e "trend 2022", relative all'indicatore selezionato, ed inoltre &egrave; possibile scegliere la visualizzazione delle prime cinque universit&agrave; o le prime dieci.</li>
+                     <li>I grafici a piramide contengono i valori ordinati in modo decrescente tra quelle selezionate.</li>
+
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+                  </div>
+               </div>
                </div>
             </div>
 
