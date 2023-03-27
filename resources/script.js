@@ -6,7 +6,6 @@ var desc_num_list = [];
 var desc_den_list = []; 
 var list_uni_fis = ["0","1","2","3","4","5","6","7","8","9","10","11","17","21","22","23","24","25","26"];
 var list_uni_tel = ["12","13","14","15","16","18","19","20"];
-var checkboxSelezionate;
 var sorgente_dati;
 var lista_indicatori;
 var uni_top_sel = [];
@@ -24,7 +23,6 @@ $(document).ready(function() {
 	$('#grafico-d').addClass('hide').removeClass('show');
 
 	let checkboxes = $("input[type=checkbox][name=check-uni]");
-	checkboxSelezionate = [];
 
 	$('input[type=radio][name=top-value]').change(function() {
 		costruisciGraficoTop();
@@ -33,13 +31,7 @@ $(document).ready(function() {
 	});
 
 	checkboxes.change(function() {
-		checkboxSelezionate = checkboxes
-		  .filter(":checked")
-		  .map(function() { 
-			return this.value;
-		  }) 
-		  .get()
-		  
+			  
 		  if (this.value == 99) {
 			selezionaDeselezionaTutteUni(this.checked);
 		  } else if (this.value == 999) {
@@ -362,11 +354,22 @@ function checkboxesSelezionateCount() {
 	return checkSel;	
 }
 
+function checkboxesSelezionate() {
+	let arrayCheckboxesSel = [];
+	let checkboxes = $("input[type=checkbox][name=check-uni]");
+	for (var i=0; i<checkboxes.length; i++) {
+		if (checkboxes[i].checked) {
+			arrayCheckboxesSel.push(checkboxes[i].value);
+		}
+	}
+	return arrayCheckboxesSel;	
+}
+
 function costruisciGraficoDispersione() {
 
 	var elem_sel_ind = $('#ind-select').val();
 
-	var idUniSel = checkboxSelezionate[0];
+	var idUniSel = checkboxesSelezionate()[0];
 	var uniSelValueDataset = [];
 	var descUnivSel;
 	var listaAltreUniDataset = [];
@@ -521,7 +524,7 @@ function isValueND (value) {
 }
 
 function costruisciTabellaIndicatori() {
-	var uniSelezionata = checkboxSelezionate[0];
+	var uniSelezionata = checkboxesSelezionate()[0];
 	var listaIndicatori = sorgente_dati[uniSelezionata]['indicatori'];
 	$('#content-body').empty();
 
