@@ -30,6 +30,18 @@ $(document).ready(function() {
 		creaStrutturaGraficoTopTrend();
 	});
 
+	$("#desel-all-btn").click(function() {
+		let checkboxes = $("input[type=checkbox][name=check-uni]");
+		for (var i=0; i<checkboxes.length; i++) {
+			checkboxes[i].checked = false;
+		}
+		gestioneMultiUni();
+		gestioneSingolaUni();
+
+		$('#desel-all-btn'). attr("disabled", true);
+
+	});
+
 	checkboxes.change(function() {
 			  
 		  if (this.value == 99) {
@@ -42,42 +54,14 @@ $(document).ready(function() {
 			selezionaDeselezionaSingolaUni(this.checked);
 		  }
 
-		  if (checkboxesSelezionateCount() == 1 && this.value != 99 && this.value != 999 && this.value != 50) {
-			configBubble = costruisciGraficoDispersione();
-			myChartBubble = document.getElementById('grafico-dispersione');
-			ctxBubble = myChartBubble.getContext('2d');
-
-			if (chartBubble != null) {
-				chartBubble.destroy();
-			}
-
-			chartBubble = new Chart(ctxBubble, configBubble);
-
-			$('#grafico-d').addClass('show').removeClass('hide');
-			$('#table-custom-id').addClass('show').removeClass('hide');
-			costruisciTabellaIndicatori();
-		  } else if (checkboxesSelezionateCount() == 0 || checkboxesSelezionateCount() > 1) {
-			$('#grafico-d').addClass('hide').removeClass('show');
-			$('#table-custom-id').addClass('hide').removeClass('show');
-		  }		
-
-		  if (checkboxesSelezionateCount() > 9) {
-			$('#radio-top').addClass('show').removeClass('hide');
-			$('#top-five-id')[0].checked = true;
+		  if (checkboxesSelezionateCount() > 0) {
+			$('#desel-all-btn'). attr("disabled", false);
 		  } else {
-			$('#radio-top').addClass('hide').removeClass('show');
+			$('#desel-all-btn'). attr("disabled", true);
 		  }
-		  
-		  if (checkboxesSelezionateCount() > 4) {
-			$('#grafico-top-valore').addClass('show').removeClass('hide');
-			$('#grafico-top-trend').addClass('show').removeClass('hide');
-			costruisciGraficoTop();
-			creaStrutturaGraficoTopValue();
-			creaStrutturaGraficoTopTrend();
-		  } else {
-			$('#grafico-top-valore').addClass('hide').removeClass('show');
-			$('#grafico-top-trend').addClass('hide').removeClass('show');
-		  }
+
+		  gestioneSingolaUni();
+		  gestioneMultiUni();
 
 	  });
 	
@@ -106,6 +90,47 @@ $(document).ready(function() {
 
 	
 });
+
+function gestioneSingolaUni() {
+	if (checkboxesSelezionateCount() == 1 && this.value != 99 && this.value != 999 && this.value != 50) {
+		configBubble = costruisciGraficoDispersione();
+		myChartBubble = document.getElementById('grafico-dispersione');
+		ctxBubble = myChartBubble.getContext('2d');
+
+		if (chartBubble != null) {
+			chartBubble.destroy();
+		}
+
+		chartBubble = new Chart(ctxBubble, configBubble);
+
+		$('#grafico-d').addClass('show').removeClass('hide');
+		$('#table-custom-id').addClass('show').removeClass('hide');
+		costruisciTabellaIndicatori();
+	  } else if (checkboxesSelezionateCount() == 0 || checkboxesSelezionateCount() > 1) {
+		$('#grafico-d').addClass('hide').removeClass('show');
+		$('#table-custom-id').addClass('hide').removeClass('show');
+	  }	
+}
+
+function gestioneMultiUni() {
+	if (checkboxesSelezionateCount() > 9) {
+		$('#radio-top').addClass('show').removeClass('hide');
+		$('#top-five-id')[0].checked = true;
+	  } else {
+		$('#radio-top').addClass('hide').removeClass('show');
+	  }
+	  
+	  if (checkboxesSelezionateCount() > 4) {
+		$('#grafico-top-valore').addClass('show').removeClass('hide');
+		$('#grafico-top-trend').addClass('show').removeClass('hide');
+		costruisciGraficoTop();
+		creaStrutturaGraficoTopValue();
+		creaStrutturaGraficoTopTrend();
+	  } else {
+		$('#grafico-top-valore').addClass('hide').removeClass('show');
+		$('#grafico-top-trend').addClass('hide').removeClass('show');
+	  }
+}
 
 function creaStrutturaGraficoTopValue() {
 	let descUniSel = [];
