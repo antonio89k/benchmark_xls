@@ -637,6 +637,7 @@ function popolaComboIndicatori(lista_indicatori) {
 		option = document.createElement("option");
 		option.text = lista_indicatori[i]['value'];
 		option.value = lista_indicatori[i]['id'];
+		option.title = lista_indicatori[i]['value'];
 		x.add(option);
 	}
 		
